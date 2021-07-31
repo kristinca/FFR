@@ -4,7 +4,7 @@ clear
 
 
 hv=20; Fm=10^13; Hr=70; Sa=2; ttm=277; tobs=4;
-tk1=(177:100:3600); %čas obsevanja 
+tk1=(177:100:3600); %čas obsevanja v [s], 1 uro; lahko je tudi dlje, samo tukaj spremenimo, v ciklu bo ok šlo 
 tk=repelem(tk1,1,2); % vsak element v tem array zapiše dvakrat ker rabim za v ciklu 
 Np=zeros(20,5); % 20x5 elementov v 2 D
 Np(:,:,2)=zeros(20,5);% da bi dobili rešitve po času rabimo 3 dimenzijo za čas
