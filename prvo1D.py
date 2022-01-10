@@ -15,7 +15,7 @@ for el in y:
 
 hv = {i for i in range(20)}
 
-t = [i for i in range(1,26)]
+t = [i for i in range(1, 26)]
 
 i = 25
 j = 46
@@ -23,7 +23,8 @@ j = 46
 Np2 = np.zeros((21, 2))
 Np2[:, 1] = np.ones(21)
 
-H = np.zeros((1, 2))
+# H = np.zeros((1, 2))
+H = []
 
 # speed = 1 [cm/s]
 # here the Si-30 sample reaches the top and stops there
@@ -31,18 +32,23 @@ H = np.zeros((1, 2))
 for el in t:
     Np2[:, 0] = [el for i in range(21)]
     Np2[:, 1] = [2*el*m for m in f[i:j]]
-    H[:, 0] = el
-    H[:, 1] = [(max(Np2[:, 1]) - min(Np2[:, 1]))/np.average(Np2[:, 1])]
-    i+= 1
-    j+= 1
+    # H[:, 0] = el
+    # H[:, 1] = [(max(Np2[:, 1]) - min(Np2[:, 1]))/np.average(Np2[:, 1])]
+    H.append((max(Np2[:, 1]) - min(Np2[:, 1]))/np.average(Np2[:, 1]))
+    i += 1
+    j += 1
     # print(i, j)
     # print(Np2, H)
 
 
 # print(f[25:46])
 print(H)
-plt.plot(H[:, 1], '*')
-plt.title(f'H at time t = {max(t)} [s]')
+# plt.plot(H[:, 1], '*')
+plt.plot(H, 'o-')
+plt.title(f'H = f (t)')
+plt.xlabel('time [s]')
+plt.ylabel('H [/]')
+plt.grid(which='major', axis='both')
 plt.show()
 
 # plt.plot(f, y, linewidth='2')
