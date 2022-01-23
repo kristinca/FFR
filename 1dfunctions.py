@@ -88,5 +88,5 @@ def going_up_down(n, i, j, up=False, down=False):
             print(i, j)
             return n, i, j, Np2, H
 
-# the sample goes down
+
 going_up_down(0,0,20, up=True)
