@@ -12,14 +12,14 @@ def get_flux_1d():
     # hr = 70
     # Sigma (Si-30) = sigma(Si-30)(n,gamma)*N(Si-30)
     sigmaSi30 = 107.2 * 10**(-27)
-    # NSi30 = (roSi30*Na)/MSi30
-    NSi30 = (2.33*6.02214*10**23)/29.9737701
-    SigmaSi30 = sigmaSi30*NSi30
-    print(f'SigmaSi30 = {SigmaSi30}, NSi30= {NSi30}')
+    # nSi30_ = (roSi30*Na)/MSi30
+    nSi30_ = (2.33*6.02214*10**23)/29.9737701
+    sigmaSi30_ = sigmaSi30*nSi30_
+    print(f'sigmaSi30_ = {sigmaSi30_}, nSi30_= {nSi30_}')
     f0 = 10**13
     f1 = []
     for el1 in y:
-        f1.append(f0*SigmaSi30*math.cos(math.radians((math.pi*el1)/70)))
+        f1.append(f0*sigmaSi30_*math.cos(math.radians((math.pi*el1)/70)))
     return f1
 
 
@@ -29,13 +29,9 @@ f = get_flux_1d()
 # plt.plot(f)
 # plt.show()
 
+np2_ = np.zeros((20, 2))
 
-i = 25
-j = 45
-
-Np2 = np.zeros((20, 2))
-
-H = []
+h_ = []
 
 
 def t_up(n_up):
@@ -77,19 +73,19 @@ def going_down_first_time(ift, jft):
     td = t_start()
     for el1 in td:
         print(f't={el1} [s], i={ift}, j={jft}')
-        Np2[:, 0] = [el1 for i in range(20)]
-        Np2[:, 1] = Np2[:, 1] + [2 * el1 * m for m in f[ift:jft]]
+        np2_[:, 0] = [el1 for i in range(20)]
+        np2_[:, 1] = np2_[:, 1] + [2 * el1 * m for m in f[ift:jft]]
         if el1 != 0:
-            H.append((max(Np2[:, 1]) - min(Np2[:, 1])) / np.average(Np2[:, 1]))
+            h_.append((max(np2_[:, 1]) - min(np2_[:, 1])) / np.average(np2_[:, 1]))
         ift += 1
         jft += 1
-    return ift, jft, Np2, H
+    return ift, jft, np2_, h_
 
 
 def going_up(n, ii, jj):
     """
     A function that calculates from initial time till the Si-30 sample reaches the top from the bottom.
-    :param n: the n-th time of going up
+    :param n: the n-th time of going  up
     :param ii: highest index of the Si-30 sample on the initial flux indexes scale
     :param jj: lowest index of the Si-30 sample on the initial flux indexes scale
     :return: highest and lowest index of the Si-30 sample on the initial flux indexes scale,
@@ -99,12 +95,12 @@ def going_up(n, ii, jj):
     tu = t_up(n)
     for el2 in tu:
         print(f't={el2} [s], i={ii}, j={jj}')
-        Np2[:, 0] = [el2 for i in range(20)]
-        Np2[:, 1] = Np2[:, 1] + [2 * el2 * m for m in f[ii:jj]]
-        H.append((max(Np2[:, 1]) - min(Np2[:, 1])) / np.average(Np2[:, 1]))
+        np2_[:, 0] = [el2 for i in range(20)]
+        np2_[:, 1] = np2_[:, 1] + [2 * el2 * m for m in f[ii:jj]]
+        h_.append((max(np2_[:, 1]) - min(np2_[:, 1])) / np.average(np2_[:, 1]))
         ii -= 1
         jj -= 1
-    return ii, jj, Np2, H
+    return ii, jj, np2_, h_
 
 
 def going_down(n, ii, jj):
@@ -120,12 +116,12 @@ def going_down(n, ii, jj):
     td = t_down(n)
     for el1 in td:
         print(f't={el1} [s], i={ii}, j={jj}')
-        Np2[:, 0] = [el1 for i in range(20)]
-        Np2[:, 1] = Np2[:, 1] + [2 * el1 * m for m in f[ii:jj]]
-        H.append((max(Np2[:, 1]) - min(Np2[:, 1])) / np.average(Np2[:, 1]))
+        np2_[:, 0] = [el1 for i in range(20)]
+        np2_[:, 1] = np2_[:, 1] + [2 * el1 * m for m in f[ii:jj]]
+        h_.append((max(np2_[:, 1]) - min(np2_[:, 1])) / np.average(np2_[:, 1]))
         ii += 1
         jj += 1
-    return ii, jj, Np2, H
+    return ii, jj, np2_, h_
 
 
 def up_down(n_times):
@@ -135,25 +131,33 @@ def up_down(n_times):
     :return: P-31 number density, homogeneity
     """
     for n in range(0, n_times):
-        iii1, ji1, Npi1, Hi1 = going_up(n, iii[-1], jjj[-1])
+        iii1, ji1, npi1_, hi1_ = going_up(n, iii[-1], jjj[-1])
         iii.append(iii1)
         jjj.append(ji1)
-        iii2, ji2, Npi2, Hi2 = going_down(n, iii[-1], jjj[-1])
+        iii2, ji2, npi2_, hi2_ = going_down(n, iii[-1], jjj[-1])
         iii.append(iii2)
         jjj.append(ji2)
-    return Npi2, Hi2
+    return npi2_, hi2_
 
 
 if __name__ == '__main__':
-    i1, j1, Np1, H1 = going_down_first_time(25, 45)
+    i1, j1, np1_, h1_ = going_down_first_time(25, 45)
     iii = [i1]
     jjj = [j1]
     # going up and down 5 times
-    N, H = up_down(5)
+    n, h_ = up_down(5)
 
-    # plot
-    # plt.plot(N[:, 1], '-')
-    plt.plot(H, '-')
+    # plot Np31 = f(h)
+
+    # plt.plot(n[:, 1]/10**13, '-')
+    # plt.title(f'Np2 = f (h)')
+    # plt.xlabel('h')
+    # plt.ylabel('N_p31 [10^13/cm^3]')
+    # plt.ticklabel_format(style='plain', useOffset=False, axis='both')
+
+    # plot H = f(t)
+
+    plt.plot(h_, '-')
     plt.title(f'H = f (t)')
     plt.xlabel('time [s]')
     plt.ylabel('H [/]')
