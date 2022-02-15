@@ -8,7 +8,6 @@ def get_flux_1d():
     :return: The reactor flux in 1D.
     """
     y = [i for i in range(-35, 36)]
-    y1 = [i for i in y if i % 5 == 0]
     # hr = 70
     # Sigma (Si-30) = sigma(Si-30)(n,gamma)*N(Si-30)
     sigmaSi30 = 107.2 * 10**(-27)
@@ -29,8 +28,8 @@ f = get_flux_1d()
 # plt.plot(f)
 # plt.show()
 
+# initialize P-31 number density, homogeneity
 np2_ = np.zeros((20, 2))
-
 h_ = []
 
 
