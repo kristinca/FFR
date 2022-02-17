@@ -1,3 +1,3 @@
 # Physics of Fission Reactors
 
-Some code for my Physics of Fission Reactors model analysis reports
+An attempt for numerically solving my Physics of Fission Reactors model analysis problems.
