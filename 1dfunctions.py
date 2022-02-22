@@ -14,16 +14,16 @@ def get_flux_1d():
     # nSi30_ = (roSi30*Na)/MSi30
     nSi30_ = (2.33*6.02214*10**23)/29.9737701
     sigmaSi30_ = sigmaSi30*nSi30_
-    print(f'sigmaSi30_ = {sigmaSi30_}, nSi30_= {nSi30_}')
+    print(f'SigmaSi30 = {sigmaSi30_}, NSi30= {nSi30_}')
     f0 = 10**13
     f1 = []
     for el1 in y:
-        f1.append(f0*sigmaSi30_*math.cos(math.radians((math.pi*el1)/70)))
-    return f1
+        f1.append(f0*math.cos(math.radians((math.pi*el1)/70)))
+    return f1, sigmaSi30_
 
 
-# get the flux in 1D
-f = get_flux_1d()
+# get the flux in 1D and SigmaSi30
+f, sSi30 = get_flux_1d()
 
 # plt.plot(f)
 # plt.show()
@@ -73,7 +73,7 @@ def going_down_first_time(ift, jft):
     for el1 in td:
         print(f't={el1} [s], i={ift}, j={jft}')
         np2_[:, 0] = [el1 for i in range(20)]
-        np2_[:, 1] = np2_[:, 1] + [2 * el1 * m for m in f[ift:jft]]
+        np2_[:, 1] = np2_[:, 1] + [sSi30 * el1 * m for m in f[ift:jft]]
         if el1 != 0:
             h_.append((max(np2_[:, 1]) - min(np2_[:, 1])) / np.average(np2_[:, 1]))
         ift += 1
@@ -95,7 +95,7 @@ def going_up(n, ii, jj):
     for el2 in tu:
         print(f't={el2} [s], i={ii}, j={jj}')
         np2_[:, 0] = [el2 for i in range(20)]
-        np2_[:, 1] = np2_[:, 1] + [2 * el2 * m for m in f[ii:jj]]
+        np2_[:, 1] = np2_[:, 1] + [sSi30 * el2 * m for m in f[ii:jj]]
         h_.append((max(np2_[:, 1]) - min(np2_[:, 1])) / np.average(np2_[:, 1]))
         ii -= 1
         jj -= 1
@@ -116,7 +116,7 @@ def going_down(n, ii, jj):
     for el1 in td:
         print(f't={el1} [s], i={ii}, j={jj}')
         np2_[:, 0] = [el1 for i in range(20)]
-        np2_[:, 1] = np2_[:, 1] + [2 * el1 * m for m in f[ii:jj]]
+        np2_[:, 1] = np2_[:, 1] + [sSi30 * el1 * m for m in f[ii:jj]]
         h_.append((max(np2_[:, 1]) - min(np2_[:, 1])) / np.average(np2_[:, 1]))
         ii += 1
         jj += 1
