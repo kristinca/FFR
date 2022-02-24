@@ -81,10 +81,37 @@ def going_down_first_time(ift, jft):
     return ift, jft, np2_, h_
 
 
+def going_up(n, ii, jj):
+    """
+    A function that calculates from initial time till the Si-30 sample reaches the top from the bottom.
+    :param n: the n-th time of going  up
+    :param ii: highest index of the Si-30 sample on the initial flux indexes scale
+    :param jj: lowest index of the Si-30 sample on the initial flux indexes scale
+    :return: highest and lowest index of the Si-30 sample on the initial flux indexes scale,
+             P-31 number density, homogeneity
+    """
+    print('\nGoing UP\n')
+    tu = t_up(n)
+    y = [i for i in range(1, 6)]
+    for el1 in tu:
+        print(f't={el1} [s], i={ii}, j={jj}')
+        for el2 in y:
+            np2_[:, 0] = [el1 for i in range(20)]
+            np2_[:, el2] = np2_[:, el2] + np.transpose(f1d[ii:jj]) * math.exp(-sSi30 * (el2 - 1))
+            if el1 != 0:
+                h_.append((max(np2_[:, el2]) - min(np2_[:, el2])) / np.average(np2_[:, el2]))
+        ii -= 1
+        jj -= 1
+    return ii, jj, np2_, h_
+
+
 if __name__ == '__main__':
 
-    i1, j1, n, h1_ = going_down_first_time(25, 45)
+    i1, j1, n1, h1_ = going_down_first_time(25, 45)
+    # iii = [i1]
+    # jjj = [j1]
 
+    iii1, ji1, n, hi1_ = going_up(0, i1, j1)
     # plot Np at final t of the time interval defined above
 
     # fig = plt.figure(dpi=128, figsize=(10, 10))
