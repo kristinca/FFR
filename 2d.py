@@ -5,7 +5,7 @@ import numpy as np
 # initialize 2D flux, P-31 number density, homogeneity
 f2d = np.ones((20, 6)) * 1.0
 np2_ = np.zeros((20, 6))
-h_ = []
+h_ = np.zeros((20, 6))
 
 
 def t_up(n_up):
@@ -47,7 +47,6 @@ def get_flux_1d():
     f1 = []
     for el1 in y:
         f1.append(f0 * sigmaSi30_ * math.cos(math.radians((math.pi * el1) / 70)))
-    # print(f'f 1d ] {f1}')
     return f1, sigmaSi30_
 
 
@@ -75,7 +74,8 @@ def going_down_first_time(ift, jft):
             np2_[:, 0] = [el1 for i in range(20)]
             np2_[:, el2] = np2_[:, el2] + np.transpose(f1d[ift:jft]) * math.exp(-sSi30 * (el2-1))
             if el1 != 0:
-                h_.append((max(np2_[:, el2]) - min(np2_[:, el2])) / np.average(np2_[:, el2]))
+                h_[:, 0] = [el1 for i in range(20)]
+                h_[:, el2] = ((max(np2_[:, el2]) - min(np2_[:, el2])) / np.average(np2_[:, el2]))
         ift += 1
         jft += 1
     return ift, jft, np2_, h_
@@ -98,7 +98,10 @@ def going_up(n, ii, jj):
         for el2 in y:
             np2_[:, 0] = [el1 for i in range(20)]
             np2_[:, el2] = np2_[:, el2] + np.transpose(f1d[ii:jj]) * math.exp(-sSi30 * (4-el2))
-            h_.append((max(np2_[:, el2]) - min(np2_[:, el2])) / np.average(np2_[:, el2]))
+            h_[:, 0] = [el1 for i in range(20)]
+            h_[:, el2] = ((max(np2_[:, el2]) - min(np2_[:, el2])) / np.average(np2_[:, el2]))
+        # h_1[:, 0] = el1
+        # h_1[:, el1] = np.average(h_[:, 1:])
         ii -= 1
         jj -= 1
     return ii, jj, np2_, h_
@@ -108,8 +111,8 @@ def going_down(n, id, jd):
     """
     A function that calculates from initial time till the Si-30 sample reaches the bottom from the top.
     :param n: the n-th time of going down
-    :param ii: highest index of the Si-30 sample on the initial flux indexes scale
-    :param jj: lowest index of the Si-30 sample on the initial flux indexes scale
+    :param id: highest index of the Si-30 sample on the initial flux indexes scale
+    :param jd: lowest index of the Si-30 sample on the initial flux indexes scale
     :return: highest and lowest index of the Si-30 sample on the initial flux indexes scale,
              P-31 number density, homogeneity
     """
@@ -121,7 +124,8 @@ def going_down(n, id, jd):
         for el2 in y:
             np2_[:, 0] = [el1 for i in range(20)]
             np2_[:, el2] = np2_[:, el2] + np.transpose(f1d[id:jd]) * math.exp(-sSi30 * (el2-1))
-            h_.append((max(np2_[:, el2]) - min(np2_[:, el2])) / np.average(np2_[:, el2]))
+            h_[:, 0] = [el1 for i in range(20)]
+            h_[:, el2] = ((max(np2_[:, el2]) - min(np2_[:, el2])) / np.average(np2_[:, el2]))
         id += 1
         jd += 1
     return id, jd, np2_, h_
@@ -149,7 +153,7 @@ if __name__ == '__main__':
     ith = [i1]
     jth = [j1]
 
-    n, h_ = up_down(300)
+    n, h_ = up_down(100)
 
     # plot Np at final t of the time interval defined above
 
@@ -165,9 +169,14 @@ if __name__ == '__main__':
     plt.yticks(ticks=range(20), labels=range(1, 21))
     plt.show()
 
-    plt.plot(h_, '-')
-    plt.title(f'H = f (t)')
-    plt.xlabel('time [s]')
-    plt.ylabel('H [/]')
+    plt.imshow(h_[:, 1:])
+    plt.colorbar(pad=0.15)
+    plt.gca().invert_yaxis()
+    plt.xticks(ticks=range(5), labels=range(1, 6))
+    plt.yticks(ticks=range(20), labels=range(1, 21))
+    # plt.plot(h_[:, 1:], '-')
+    plt.title(f'H at t = {n[-1,0]} s')
+    plt.xlabel('dv [cm]')
+    plt.ylabel('h [cm]')
     plt.grid(which='major', axis='both')
     plt.show()
