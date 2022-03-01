@@ -6,6 +6,7 @@ import numpy as np
 f2d = np.ones((20, 6)) * 1.0
 np2_ = np.zeros((20, 6))
 h_ = np.zeros((20, 6))
+h = []
 
 
 def t_up(n_up):
@@ -76,9 +77,11 @@ def going_down_first_time(ift, jft):
             if el1 != 0:
                 h_[:, 0] = [el1 for i in range(20)]
                 h_[:, el2] = ((max(np2_[:, el2]) - min(np2_[:, el2])) / np.average(np2_[:, el2]))
+        if el1 != 0:
+            h.append(np.average(h_[:, 1:]))
         ift += 1
         jft += 1
-    return ift, jft, np2_, h_
+    return ift, jft, np2_, h_, h
 
 
 def going_up(n, ii, jj):
@@ -100,11 +103,10 @@ def going_up(n, ii, jj):
             np2_[:, el2] = np2_[:, el2] + np.transpose(f1d[ii:jj]) * math.exp(-sSi30 * (4-el2))
             h_[:, 0] = [el1 for i in range(20)]
             h_[:, el2] = ((max(np2_[:, el2]) - min(np2_[:, el2])) / np.average(np2_[:, el2]))
-        # h_1[:, 0] = el1
-        # h_1[:, el1] = np.average(h_[:, 1:])
+        h.append(np.average(h_[:, 1:]))
         ii -= 1
         jj -= 1
-    return ii, jj, np2_, h_
+    return ii, jj, np2_, h_, h
 
 
 def going_down(n, id, jd):
@@ -126,9 +128,10 @@ def going_down(n, id, jd):
             np2_[:, el2] = np2_[:, el2] + np.transpose(f1d[id:jd]) * math.exp(-sSi30 * (el2-1))
             h_[:, 0] = [el1 for i in range(20)]
             h_[:, el2] = ((max(np2_[:, el2]) - min(np2_[:, el2])) / np.average(np2_[:, el2]))
+        h.append(np.average(h_[:, 1:]))
         id += 1
         jd += 1
-    return id, jd, np2_, h_
+    return id, jd, np2_, h_, h
 
 
 def up_down(n_times):
@@ -138,26 +141,26 @@ def up_down(n_times):
     :return: P-31 number density, homogeneity
     """
     for n_time in range(0, n_times):
-        ith1, jth1, nth1_, hth1_ = going_up(n_time, ith[-1], jth[-1])
+        ith1, jth1, nth1_, hth1_, hh1 = going_up(n_time, ith[-1], jth[-1])
         ith.append(ith1)
         jth.append(jth1)
-        ith2, jth2, nth2_, hth2_ = going_down(n_time, ith[-1], jth[-1])
+        ith2, jth2, nth2_, hth2_, hh2 = going_down(n_time, ith[-1], jth[-1])
         ith.append(ith2)
         jth.append(jth2)
-    return nth2_, hth2_
+    return nth2_, hth2_, hh2
 
 
 if __name__ == '__main__':
 
-    i1, j1, n1, h1_ = going_down_first_time(25, 45)
+    i1, j1, n1, h1_, h111= going_down_first_time(25, 45)
     ith = [i1]
     jth = [j1]
 
-    n, h_ = up_down(100)
+    n, h_, h112 = up_down(100)
 
     # plot Np at final t of the time interval defined above
 
-    # fig = plt.figure(dpi=128, figsize=(10, 10))
+    fig = plt.figure(dpi=128, figsize=(10, 10))
     plt.imshow(n[:, 1:])
     plt.tick_params(axis='both', which='major', labelsize=11)
     plt.gca().invert_yaxis()
@@ -169,6 +172,8 @@ if __name__ == '__main__':
     plt.yticks(ticks=range(20), labels=range(1, 21))
     plt.show()
 
+    # plot H at final t of the time interval defined above
+
     plt.imshow(h_[:, 1:])
     plt.colorbar(pad=0.15)
     plt.gca().invert_yaxis()
@@ -178,5 +183,15 @@ if __name__ == '__main__':
     plt.title(f'H at t = {n[-1,0]} s')
     plt.xlabel('dv [cm]')
     plt.ylabel('h [cm]')
+    plt.grid(which='major', axis='both')
+    plt.show()
+
+
+    # plot H = f(t)
+
+    plt.plot(h112, '-')
+    plt.title(f'H = f (t)')
+    plt.xlabel('time [s]')
+    plt.ylabel('H [/]')
     plt.grid(which='major', axis='both')
     plt.show()
