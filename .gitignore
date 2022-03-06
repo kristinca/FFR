@@ -14,6 +14,12 @@ db.sqlite3
 # Static folder at project root
 /static/
 .idea/
+Scenarij_1.out
+Scenarij_2.out
+Scenarij_3.out
+Scenarij_4.out
+Scenarij_5.out
+Scenarij_6.out
 
 # macOS
 ._*
@@ -31,3 +37,4 @@ $RECYCLE.BIN/
 .vscode/
 .history/
 *.code-workspace
+/scenarij1.txt
