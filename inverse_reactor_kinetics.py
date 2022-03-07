@@ -22,10 +22,10 @@ def clean_data(file_name):
     return t, pp0
 
 
-def get_txt_files(num):
+def get_txt_file(num):
     """
-    A function to get cleaned .txt file from the .out file
-    :param num: number of Scenarij
+    A function to write cleaned .txt file from the .out file
+    :param num: number of Scenarij.out file
     """
     # get the time and P(t)/P(0)
     tnum, pp0num = clean_data(f'Scenarij_{num}')
@@ -38,4 +38,4 @@ def get_txt_files(num):
 
 if __name__ == '__main__':
     for i in range(1, 7):
-        get_txt_files(i)
+        get_txt_file(i)
