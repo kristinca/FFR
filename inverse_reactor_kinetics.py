@@ -22,10 +22,20 @@ def clean_data(file_name):
     return t, pp0
 
 
-# get the time and P(t)/P(0)
-t1, pp01 = clean_data('Scenarij_1')
+def get_txt_files(num):
+    """
+    A function to get cleaned .txt file from the .out file
+    :param num: number of Scenarij
+    """
+    # get the time and P(t)/P(0)
+    tnum, pp0num = clean_data(f'Scenarij_{num}')
 
-# write the time and P(t)/P(0) from the .out file to a txt file
-with open('scenarij1.txt', 'w') as f:
-    for row in range(len(t1)):
-        f.write(t1[row] + ' ' + pp01[row]+'\n')
+    # write the time and P(t)/P(0) from the .out file to a txt file
+    with open(f'scenarij{num}.txt', 'w') as f:
+        for row in range(len(tnum)):
+            f.write(tnum[row] + ' ' + pp0num[row]+'\n')
+
+
+if __name__ == '__main__':
+    for i in range(1, 7):
+        get_txt_files(i)
