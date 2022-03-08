@@ -179,7 +179,6 @@ if __name__ == '__main__':
     plt.gca().invert_yaxis()
     plt.xticks(ticks=range(5), labels=range(1, 6))
     plt.yticks(ticks=range(20), labels=range(1, 21))
-    # plt.plot(h_[:, 1:], '-')
     plt.title(f'H at t = {n[-1,0]} s')
     plt.xlabel('dv [cm]')
     plt.ylabel('h [cm]')

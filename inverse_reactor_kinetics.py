@@ -1,4 +1,7 @@
 import re
+
+import matplotlib.pyplot as plt
+import numpy as np
 import pandas as pd
 
 
@@ -36,6 +39,33 @@ def get_txt_file(num):
             f.write(tnum[row] + ' ' + pp0num[row]+'\n')
 
 
+def get_time_and_power_rate(txt_file):
+    with open(txt_file, 'r') as f:
+        lines = f.readlines()
+        t = []
+        pp0 = []
+        for line in lines:
+            t.append(line.split(' ')[0])
+            pp0.append(line.split(' ')[1])
+    return t, pp0
+
+
 if __name__ == '__main__':
-    for i in range(1, 7):
-        get_txt_file(i)
+
+    # get .txt files with cleaned data
+    # for i in range(1, 7):
+    #     get_txt_file(i)
+
+    for no in range(1, 7):
+        tpp0 = np.loadtxt(f'scenarij{no}.txt', dtype='float')
+
+        # plot P(t)/P(0) = f(t)
+        plt.plot(tpp0[:, 0], tpp0[:, 1])
+        plt.title(f'Scenarij {no}')
+        plt.tick_params(axis='both', which='major', labelsize=11)
+        # plt.yticks(ticks=[i for i in range(0, 60, 5)], labels=[i for i in range(0, 60, 5)])
+        plt.xlabel('t [s]')
+        plt.ylabel(f'P(t)/P$_{"0"}$(t)')
+        plt.grid(which='major', axis='both')
+        plt.savefig(f'p{no}.png')
+        plt.show()
