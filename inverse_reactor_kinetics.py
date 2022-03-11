@@ -1,3 +1,4 @@
+import math
 import re
 
 import matplotlib.pyplot as plt
@@ -50,6 +51,20 @@ def get_time_and_power_rate(txt_file):
     return t, pp0
 
 
+def delayed_neutron_kernel(t_end):
+    """
+    A function that calculates the delayed neutron kernel.
+    :param t_end: total time
+    :return: delayed neutron kernel function for this problem
+    """
+    # D(u) = lambda*exp(-lambda*u)
+    lam = 0.077
+    d = []
+    for i in range(t_end):
+        d.append(lam*math.exp(-lam*i))
+    return d
+
+
 if __name__ == '__main__':
 
     # get .txt files with cleaned data
@@ -59,13 +74,30 @@ if __name__ == '__main__':
     for no in range(1, 7):
         tpp0 = np.loadtxt(f'scenarij{no}.txt', dtype='float')
 
-        # plot P(t)/P(0) = f(t)
-        plt.plot(tpp0[:, 0], tpp0[:, 1])
-        plt.title(f'Scenarij {no}')
+          # plot and save P(t)/P(0) = f(t) for each case
+    #     # plot P(t)/P(0) = f(t)
+    #     plt.plot(tpp0[:, 0], tpp0[:, 1])
+    #     plt.title(f'Scenarij {no}')
+    #     plt.tick_params(axis='both', which='major', labelsize=11)
+    #     # plt.yticks(ticks=[i for i in range(0, 60, 5)], labels=[i for i in range(0, 60, 5)])
+    #     plt.xlabel('t [s]')
+    #     plt.ylabel(f'P(t)/P$_{"0"}$(t)')
+    #     plt.grid(which='major', axis='both')
+    #
+    #     # save figure
+    #     plt.savefig(f'p{no}.png')
+    #
+    #     plt.show()
+
+        tt = tpp0[:, 0]
+        d1 = delayed_neutron_kernel(int(tt[-1]))
+        # print(d1)
+
+        # plot D(t) = f(t)
+        plt.plot(d1)
+        plt.title(f'Delayed neutron kernel scenarij {no}')
         plt.tick_params(axis='both', which='major', labelsize=11)
-        # plt.yticks(ticks=[i for i in range(0, 60, 5)], labels=[i for i in range(0, 60, 5)])
         plt.xlabel('t [s]')
-        plt.ylabel(f'P(t)/P$_{"0"}$(t)')
+        plt.ylabel(f'D(t)')
         plt.grid(which='major', axis='both')
-        plt.savefig(f'p{no}.png')
         plt.show()
