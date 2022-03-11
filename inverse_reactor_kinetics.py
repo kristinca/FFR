@@ -97,7 +97,10 @@ if __name__ == '__main__':
         plt.plot(d1)
         plt.title(f'Delayed neutron kernel scenarij {no}')
         plt.tick_params(axis='both', which='major', labelsize=11)
-        plt.xlabel('t [s]')
-        plt.ylabel(f'D(t)')
+        plt.xlabel('time after fission event, u[s]')
+        plt.ylabel(f'Probability of delayed neutron emission within du')
         plt.grid(which='major', axis='both')
+
+        #     # save figure
+        plt.savefig(f'D(u){no}.png')
         plt.show()
