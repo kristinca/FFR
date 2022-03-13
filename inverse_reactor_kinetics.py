@@ -4,6 +4,7 @@ import re
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+from scipy.integrate import quad
 
 
 def clean_data(file_name):
@@ -65,6 +66,33 @@ def delayed_neutron_kernel(t_end):
     return d
 
 
+def the_integral(d_kernel, p, t_n, the_indexes):
+    """
+    A function that calculates the integral in the reactivity.
+    :param d_kernel: delayed neutron kernel
+    :param p: power ratio
+    :param t_n: time for this case
+    :param the_indexes: the indexes for the power ratio
+    :return: the value after integration
+    """
+    the_int = 0
+    for i in range(len(t_n)):
+        the_int += d_kernel[i-1]*p[the_indexes[i-1]]
+    return the_int
+
+
+# def full_integral_part(b, integral, p, t_i):
+#     """
+#     A function that calculates the full part w/ the integral in the reactivity equation.
+#     :param b: effective fraction of delayed neutrons, beta
+#     :param integral: the integral
+#     :param p: power ratio
+#     :param t_i: the time for this i-th case
+#     :return: the total part w/ the integral in the reactivity equation.
+#     """
+#
+
+
 if __name__ == '__main__':
 
     # get .txt files with cleaned data
@@ -92,15 +120,30 @@ if __name__ == '__main__':
         tt = tpp0[:, 0]
         d1 = delayed_neutron_kernel(int(tt[-1]))
         # print(d1)
+        aa = []
+        for i in range(len(tt)):
+            aa.append(int(len(tt)-i))
+            # if int(tt[-1]-i) > 0:
+                # print(int(tt[-1]-i))
+
+        # print(aa)
+        # for ia in aa:
+        #     print(tpp0[ia-1, 1])
+
+        # print(f'final time {no} : {tt[-1]} \n')
+
+        iint = the_integral(d1, tpp0[:, 1], tt, aa)
+
+        print(f'the integral for scenarij {no} is: {iint}.\n')
 
         # plot D(t) = f(t)
-        plt.plot(d1)
-        plt.title(f'Delayed neutron kernel scenarij {no}')
-        plt.tick_params(axis='both', which='major', labelsize=11)
-        plt.xlabel('time after fission event, u[s]')
-        plt.ylabel(f'Probability of delayed neutron emission within du')
-        plt.grid(which='major', axis='both')
-
+        # plt.plot(d1)
+        # plt.title(f'Delayed neutron kernel scenarij {no}')
+        # plt.tick_params(axis='both', which='major', labelsize=11)
+        # plt.xlabel('time after fission event, u[s]')
+        # plt.ylabel(f'Probability of delayed neutron emission within du')
+        # plt.grid(which='major', axis='both')
+        #
         #     # save figure
-        plt.savefig(f'D(u){no}.png')
-        plt.show()
+        # plt.savefig(f'D(u){no}.png')
+        # plt.show()
