@@ -61,7 +61,7 @@ def delayed_neutron_kernel(t_end):
     # D(u) = lambda*exp(-lambda*u)
     lam = 0.077
     d = []
-    for i in range(t_end):
+    for i in t_end:
         d.append(lam*math.exp(-lam*i))
     return d
 
@@ -76,8 +76,10 @@ def the_integral(d_kernel, p, t_n, the_indexes):
     :return: the value after integration
     """
     the_int = 0
-    for i in range(len(t_n)):
-        the_int += d_kernel[i-1]*p[the_indexes[i-1]]
+    beta = 0.007
+    for i in range(len(the_indexes)):
+        the_int += (beta/p[i])*d_kernel[i]*p[the_indexes[i]-1]
+        # print(f'{the_int}, ind = {i}')
     return the_int
 
 
@@ -118,21 +120,14 @@ if __name__ == '__main__':
     #     plt.show()
 
         tt = tpp0[:, 0]
-        d1 = delayed_neutron_kernel(int(tt[-1]))
+        d1 = delayed_neutron_kernel(tt)
         # print(d1)
         aa = []
         for i in range(len(tt)):
             aa.append(int(len(tt)-i))
-            # if int(tt[-1]-i) > 0:
-                # print(int(tt[-1]-i))
+        pp = tpp0[:, 1].tolist()
 
-        # print(aa)
-        # for ia in aa:
-        #     print(tpp0[ia-1, 1])
-
-        # print(f'final time {no} : {tt[-1]} \n')
-
-        iint = the_integral(d1, tpp0[:, 1], tt, aa)
+        iint = the_integral(d1, pp, tt, aa)
 
         print(f'the integral for scenarij {no} is: {iint}.\n')
 
