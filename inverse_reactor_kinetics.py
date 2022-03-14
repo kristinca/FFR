@@ -66,14 +66,13 @@ def delayed_neutron_kernel(t_end):
     return d
 
 
-def the_integral(d_kernel, p, t_n, the_indexes):
+def the_delayed_neutrons(d_kernel, p, the_indexes):
     """
-    A function that calculates the integral in the reactivity.
+    A function that calculates the delayed neutrons contribution to the reactivity.
     :param d_kernel: delayed neutron kernel
     :param p: power ratio
-    :param t_n: time for this case
     :param the_indexes: the indexes for the power ratio
-    :return: the value after integration
+    :return: the value of this part of the equation.
     """
     the_int = 0
     beta = 0.007
@@ -127,9 +126,9 @@ if __name__ == '__main__':
             aa.append(int(len(tt)-i))
         pp = tpp0[:, 1].tolist()
 
-        iint = the_integral(d1, pp, tt, aa)
+        iint = the_delayed_neutrons(d1, pp, aa)
 
-        print(f'the integral for scenarij {no} is: {iint}.\n')
+        print(f'the delayed neutrons part for scenarij {no} is: {iint}.\n')
 
         # plot D(t) = f(t)
         # plt.plot(d1)
