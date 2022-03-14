@@ -76,11 +76,26 @@ def the_delayed_neutrons(d_kernel, p, the_indexes):
     """
     the_int = 0
     beta = 0.007
+    delaayed = []
     for i in range(len(the_indexes)):
         the_int += (beta/p[i])*d_kernel[i]*p[the_indexes[i]-1]
+        delaayed.append(the_int)
         # print(f'{the_int}, ind = {i}')
-    return the_int
+    return delaayed
 
+
+def the_prompt_neutrons(p, t_n):
+    """
+    A function that calculates the prompt neutrons contribution to the reactivity.
+    :param p: power ratio
+    :param t_n: time
+    :return: the value of this part of the equation.
+    """
+    llambda = 40*(10**(-6))
+    prompt = []
+    for i in range(len(t_n)-1):
+        prompt.append(llambda*(p[i+1]-p[i])/t_n[i])
+    return prompt
 
 # def full_integral_part(b, integral, p, t_i):
 #     """
@@ -126,9 +141,21 @@ if __name__ == '__main__':
             aa.append(int(len(tt)-i))
         pp = tpp0[:, 1].tolist()
 
-        iint = the_delayed_neutrons(d1, pp, aa)
+        dd = the_delayed_neutrons(d1, pp, aa)
 
-        print(f'the delayed neutrons part for scenarij {no} is: {iint}.\n')
+        pp = the_prompt_neutrons(pp, tt)
+
+        # print(len(pp), len(dd))
+
+        r = []
+
+        for i in range(len(tt)-1):
+            r.append(pp[i]+dd[i])
+
+        plt.plot(r)
+        plt.show()
+        # print(f'the delayed neutrons part for scenarij {no} is: {iint}.\n')
+
 
         # plot D(t) = f(t)
         # plt.plot(d1)
