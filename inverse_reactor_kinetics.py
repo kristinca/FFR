@@ -94,7 +94,7 @@ def the_prompt_neutrons(p, t_n):
     llambda = 40*(10**(-6))
     prompt = []
     for i in range(len(t_n)-1):
-        prompt.append(llambda*(p[i+1]-p[i])/t_n[i])
+        prompt.append(llambda*(p[i+1]-p[i])/(t_n[i])*p[i])
     return prompt
 
 # def full_integral_part(b, integral, p, t_i):
@@ -145,16 +145,19 @@ if __name__ == '__main__':
 
         pp = the_prompt_neutrons(pp, tt)
 
+        plt.plot(pp)
+        plt.show()
+
         # print(len(pp), len(dd))
 
-        r = []
-
-        for i in range(len(tt)-1):
-            r.append(pp[i]+dd[i])
-
-        plt.plot(r)
-        plt.show()
-        # print(f'the delayed neutrons part for scenarij {no} is: {iint}.\n')
+        # r = []
+        #
+        # for i in range(len(tt)-1):
+        #     r.append(pp[i]+dd[i])
+        #
+        # plt.plot(r)
+        # plt.show()
+        # # print(f'the delayed neutrons part for scenarij {no} is: {iint}.\n')
 
 
         # plot D(t) = f(t)
