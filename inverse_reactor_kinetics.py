@@ -4,6 +4,7 @@ import re
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+import scipy.integrate as it
 from scipy.integrate import quad
 
 
@@ -66,22 +67,46 @@ def delayed_neutron_kernel(t_end):
     return d
 
 
-def the_delayed_neutrons(d_kernel, p, the_indexes):
+def the_integrand(the_time, fint):
+    lam = 0.077
+    t_int = []
+    for i in range(len(the_time)):
+        t_int.append(lam*fint[i]*math.exp(-lam*the_time[i]))
+    return t_int
+
+
+def the_delayed_neutrons(the_time, p, integral_the):
     """
     A function that calculates the delayed neutrons contribution to the reactivity.
+    :param the_time: the time interval for this case
     :param d_kernel: delayed neutron kernel
-    :param p: power ratio
+    :param p_int: the power ratio inside of the integral
+    :param p: power ratio outside of the integral
     :param the_indexes: the indexes for the power ratio
     :return: the value of this part of the equation.
     """
-    the_int = 0
+    the_integral = integral_the
     beta = 0.007
-    delaayed = []
-    for i in range(len(the_indexes)):
-        the_int += (beta/p[i])*d_kernel[i]*p[the_indexes[i]-1]
-        delaayed.append(the_int)
-        # print(f'{the_int}, ind = {i}')
-    return delaayed
+    delayed2 = []
+
+    for i in range(len(the_time)):
+        try:
+            delayed1 = beta - (beta*integral_the[i]/p[i])
+        # print(delayed1)
+            delayed2.append(100000*delayed1)
+        except IndexError:
+            break
+
+    # for i in range(1,len(the_indexes)):
+    #     try:
+    #         the_inti += d_kernel[i]*p_int[i]*(the_time[i+1]-the_time[i])
+    #         # print(the_inti)
+    #         delayed1 = beta - (beta*the_inti/p[i])
+    #         delayed2.append(100000*delayed1)
+    #         # print(f'{the_int}, ind = {i}')
+    #     except IndexError:
+    #         break
+    return delayed2
 
 
 def the_prompt_neutrons(p, t_n):
@@ -94,7 +119,7 @@ def the_prompt_neutrons(p, t_n):
     llambda = 40*(10**(-6))
     prompt = []
     for i in range(len(t_n)-1):
-        prompt.append(llambda*(p[i+1]-p[i])/(t_n[i])*p[i])
+        prompt.append(100000*llambda*(p[i+1]-p[i])/(p[i]*(t_n[i+1]-t_n[i])))
     return prompt
 
 # def full_integral_part(b, integral, p, t_i):
@@ -134,19 +159,21 @@ if __name__ == '__main__':
     #     plt.show()
 
         tt = tpp0[:, 0]
-        d1 = delayed_neutron_kernel(tt)
-        # print(d1)
-        aa = []
-        for i in range(len(tt)):
-            aa.append(int(len(tt)-i))
-        pp = tpp0[:, 1].tolist()
 
-        dd = the_delayed_neutrons(d1, pp, aa)
+        # pp = the_prompt_neutrons(tpp0[:,1], tt)
 
-        pp = the_prompt_neutrons(pp, tt)
-
-        plt.plot(pp)
-        plt.show()
+        # # plot the prompt neutrons part in the reactivity equation
+        # plt.plot(tt[:-1], pp)
+        # plt.subplots_adjust(left=0.17, bottom=0.17)
+        # plt.title(f'Prompt neutrons part - scenarij {no}')
+        # plt.tick_params(axis='both', which='major', labelsize=11)
+        # plt.xlabel('t [s]')
+        # plt.ylabel(r"$\rho$ [pcm]")
+        # plt.grid(which='major', axis='both')
+        #
+        #     # save figure
+        # plt.savefig(f'prompt{no}.png')
+        # plt.show()
 
         # print(len(pp), len(dd))
 
@@ -157,8 +184,39 @@ if __name__ == '__main__':
         #
         # plt.plot(r)
         # plt.show()
-        # # print(f'the delayed neutrons part for scenarij {no} is: {iint}.\n')
+        # # print(f'3the delayed neutrons part for scenarij {no} is: {iint}.\n')
 
+        # get the delayed neutron kernel
+        d1 = delayed_neutron_kernel(tt)
+
+
+        # get the indexes for the power ratio in the integral
+        aa = []
+        for i in range(len(tt)):
+            aa.append(int(len(tt)-i))
+
+        # power ratio as it is recorded in time -> to list
+        f_list = tpp0[:, 1].tolist()
+
+
+        # power ratio as needed inside the integral
+        f_int = []
+        for i in range(1,len(tt)):
+            # print(f_list[aa[i]])
+            f_int.append(f_list[aa[i]])
+
+        integrand1=the_integrand(tt[1:].tolist(),f_int)
+        integral = it.cumtrapz(integrand1, tt[1:].tolist())
+
+
+        # i = it.cumtrapz(p, ttt)
+
+        # print(f'len d kernel = {len(d1[:-1])}, len f_int = {len(f_int)}, len f_list={len(f_list[:-1])}, len aa={len(aa[:-1])}')
+        # dd = the_delayed_neutrons(tt[:-1], d1[:-1], f_int[:-1], f_list[:-1], aa[:-1])
+
+        dd = the_delayed_neutrons(tt[1:], f_list, integral)
+        plt.plot(tt[1:-1], dd)
+        plt.show()
 
         # plot D(t) = f(t)
         # plt.plot(d1)
