@@ -111,8 +111,11 @@ def the_prompt_neutrons(p, t_n):
 
 if __name__ == '__main__':
 
-    # get numpy array with cleaned data -> time, power ratio
     for no in range(1, 7):
+        # get the txt file
+        get_txt_file(no)
+
+        # get numpy array with cleaned data -> time, power ratio
         tpp0 = np.loadtxt(f'scenarij{no}.txt', dtype='float')
 
     #   1. plot and save P(t)/P(0) = f(t) for each case
