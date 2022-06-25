@@ -156,7 +156,7 @@ if __name__ == '__main__':
     ith = [i1]
     jth = [j1]
 
-    n, h_, h112 = up_down(100)
+    n, h_, h112 = up_down(1000)
 
     # plot Np at final t of the time interval defined above
 
@@ -170,6 +170,8 @@ if __name__ == '__main__':
     plt.colorbar(pad=0.15)
     plt.xticks(ticks=range(5), labels=range(1, 6))
     plt.yticks(ticks=range(20), labels=range(1, 21))
+    # save figure
+    plt.savefig(f'2dN{n[-1,0]}.png')
     plt.show()
 
     # plot H at final t of the time interval defined above
@@ -183,6 +185,8 @@ if __name__ == '__main__':
     plt.xlabel('dv [cm]')
     plt.ylabel('h [cm]')
     plt.grid(which='major', axis='both')
+    # save figure
+    plt.savefig(f'2dH{n[-1,0]}.png')
     plt.show()
 
 
@@ -193,4 +197,6 @@ if __name__ == '__main__':
     plt.xlabel('time [s]')
     plt.ylabel('H [/]')
     plt.grid(which='major', axis='both')
+    # save figure
+    plt.savefig(f'2dHt{n[-1,0]}.png')
     plt.show()

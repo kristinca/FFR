@@ -113,7 +113,7 @@ if __name__ == '__main__':
 
     for no in range(1, 7):
         # get the txt file
-        get_txt_file(no)
+        # get_txt_file(no)
 
         # get numpy array with cleaned data -> time, power ratio
         tpp0 = np.loadtxt(f'scenarij{no}.txt', dtype='float')
@@ -122,7 +122,6 @@ if __name__ == '__main__':
         plt.plot(tpp0[:, 0], tpp0[:, 1])
         plt.title(f'Scenarij {no}')
         plt.tick_params(axis='both', which='major', labelsize=11)
-        # plt.yticks(ticks=[i for i in range(0, 60, 5)], labels=[i for i in range(0, 60, 5)])
         plt.xlabel('t [s]')
         plt.ylabel(f'P(t)/P$_{"0"}$(t)')
         plt.grid(which='major', axis='both')
@@ -130,37 +129,51 @@ if __name__ == '__main__':
     #     plt.savefig(f'p{no}.png')
         plt.show()
 
+    #   1.2. plot reactor period  T = t / ln(P(t)/P0)
+        lnpp0 = np.log(tpp0[:, 1])
+        reactor_period = [tpp0[i]/lnpp0[i] for i in range(1, len(tpp0[:, 0]))]
+        # print(reactor_period)
+        plt.plot(tpp0[1:, 0], reactor_period[:,0], color='green')
+        plt.tick_params(axis='both', which='major', labelsize=11)
+        plt.xlabel('t [s]')
+        plt.ylabel(f'T [s]')
+        plt.grid(which='major', axis='both')
+        #   1.1 save figure
+        plt.savefig(f'T{no}.png')
+        plt.show()
+
+
         # 2. prompt neutrons part in the reactivity equation
         tt = tpp0[:, 0]
         pp = the_prompt_neutrons(tpp0[:,1], tt)
 
-        # 2.1. plot the prompt neutrons part in the reactivity equation
-        plt.plot(tt[:-1], pp)
-        plt.subplots_adjust(left=0.17, bottom=0.17)
-        plt.title(f'Prompt neutrons part - scenarij {no}')
-        plt.tick_params(axis='both', which='major', labelsize=11)
-        plt.xlabel('t [s]')
-        plt.ylabel(r"$\rho$")
-        plt.grid(which='major', axis='both')
-        # 2.2 save figure
-        # plt.savefig(f'prompt{no}.png')
-        plt.show()
+        # # 2.1. plot the prompt neutrons part in the reactivity equation
+        # plt.plot(tt[:-1], pp)
+        # plt.subplots_adjust(left=0.17, bottom=0.17)
+        # plt.title(f'Prompt neutrons part - scenarij {no}')
+        # plt.tick_params(axis='both', which='major', labelsize=11)
+        # plt.xlabel('t [s]')
+        # plt.ylabel(r"$\rho [\$]$")
+        # plt.grid(which='major', axis='both')
+        # # 2.2 save figure
+        # # plt.savefig(f'prompt{no}.png')
+        # plt.show()
 
         # 3. delayed neutrons part in the equation
 
         # 3.1. get the delayed neutron kernel
         d1 = delayed_neutron_kernel(tt)
 
-        # plot D(t) = f(t)
-        plt.plot(d1)
-        plt.title(f'Delayed neutron kernel scenarij {no}')
-        plt.tick_params(axis='both', which='major', labelsize=11)
-        plt.xlabel('time after fission event, u[s]')
-        plt.ylabel(f'Probability of delayed neutron emission within du')
-        plt.grid(which='major', axis='both')
-        # save figure
-        # plt.savefig(f'D(u){no}.png')
-        plt.show()
+        # # plot D(t) = f(t)
+        # plt.plot(d1)
+        # plt.title(f'Delayed neutron kernel scenarij {no}')
+        # plt.tick_params(axis='both', which='major', labelsize=11)
+        # plt.xlabel('time after fission event, u[s]')
+        # plt.ylabel(f'Probability of delayed neutron emission within du')
+        # plt.grid(which='major', axis='both')
+        # # save figure
+        # # plt.savefig(f'D(u){no}.png')
+        # plt.show()
 
         # 3.2 get the indexes for the power ratio in the integral
         indexes = []
@@ -187,15 +200,32 @@ if __name__ == '__main__':
         # 4. plot prompt + delayed neutrons reactivity
         r = []
         for i in range(len(dd)):
-            r.append(pp[i]+dd[i])
-        plt.plot(tt[1:-1], r)
+            if abs(pp[i]+dd[i]) < 0.007:
+                r.append((pp[i]+dd[i])*10**5)
+            else:
+                r.append(pp[i]*10**5)
+        plt.plot(tt[1:-1], r, color='#FF00FF')
         plt.title(f'Reactivity scenarij {no}')
         plt.tick_params(axis='both', which='major', labelsize=11)
         plt.subplots_adjust(left=0.17, bottom=0.17)
         plt.xlabel('t [s]')
-        plt.ylabel(r"$\rho$")
+        plt.ylabel(r"$\rho [pcm]$")
         plt.grid(which='major', axis='both')
 
         # 4.1. save figure
         # plt.savefig(f'rho{no}.png')
+        plt.show()
+
+        # 5. multiplication factor k = 1/(1 - rho)
+        k = [1/(1-i*10**-5) for i in r]
+
+        plt.plot(tt[1:-1], k, color='#580000')
+        plt.tick_params(axis='both', which='major', labelsize=11)
+        plt.subplots_adjust(left=0.17, bottom=0.17)
+        plt.xlabel('t [s]')
+        plt.ylabel('k')
+        plt.grid(which='major', axis='both')
+
+        # 5.1. save figure
+        plt.savefig(f'k{no}.png')
         plt.show()

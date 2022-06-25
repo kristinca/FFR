@@ -144,15 +144,20 @@ if __name__ == '__main__':
     iii = [i1]
     jjj = [j1]
     # going up and down 5 times
-    n, h_ = up_down(5)
+    num = 50
+    n, h_ = up_down(num)
 
     # plot Np31 = f(h)
 
-    # plt.plot(n[:, 1]/10**13, '-')
-    # plt.title(f'Np2 = f (h)')
-    # plt.xlabel('h')
-    # plt.ylabel('N_p31 [10^13/cm^3]')
-    # plt.ticklabel_format(style='plain', useOffset=False, axis='both')
+    plt.plot(n[:, 1]/10**13, '-', color='purple')
+    plt.title('$\mathregular{N_{P-31 }}$ = f (h)')
+    plt.xlabel('h')
+    plt.ylabel('$\mathregular{N_{P-31} [10^{13}/cm^3]}$')
+    plt.ticklabel_format(style='plain', useOffset=False, axis='both')
+    plt.subplots_adjust(left=0.2)
+    # save figure
+    # plt.savefig(f'1dN{num}.png')
+    plt.show()
 
     # plot H = f(t)
 
@@ -161,4 +166,7 @@ if __name__ == '__main__':
     plt.xlabel('time [s]')
     plt.ylabel('H [/]')
     plt.grid(which='major', axis='both')
+    plt.subplots_adjust(left=0.2)
+    # save figure
+    # plt.savefig(f'1dH{num}.png')
     plt.show()
