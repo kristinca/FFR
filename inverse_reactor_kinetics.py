@@ -74,21 +74,20 @@ def the_integrand(the_time, fint):
     return t_int
 
 
-def the_delayed_neutrons(the_time, p, integral_the):
+def the_delayed_neutrons(the_time, p):
     """
     A function that calculates the delayed neutrons contribution to the reactivity.
-    :param the_time: the time interval for this case
-    :param p: power ratio outside of the integral
-    :param integral_the: the integral
+    :param the_time: the time
+    :param p: power ratio
     :return: the value of this part of the equation.
     """
-    the_integral = integral_the
     beta = 0.007
+    lam = 0.077
     delayed2 = []
 
     for i in range(len(the_time)):
         try:
-            delayed1 = beta - (beta*the_integral[i]/p[i])
+            delayed1 = beta - beta*((p[i]-p[0])/p[i])*lam**2
             delayed2.append(delayed1)
         except IndexError:
             break
@@ -118,16 +117,16 @@ if __name__ == '__main__':
         # get numpy array with cleaned data -> time, power ratio
         tpp0 = np.loadtxt(f'scenarij{no}.txt', dtype='float')
 
-    #   1. plot and save P(t)/P(0) = f(t) for each case
-        plt.plot(tpp0[:, 0], tpp0[:, 1])
-        plt.title(f'Scenarij {no}')
-        plt.tick_params(axis='both', which='major', labelsize=11)
-        plt.xlabel('t [s]')
-        plt.ylabel(f'P(t)/P$_{"0"}$(t)')
-        plt.grid(which='major', axis='both')
-    #   1.1 save figure
-    #     plt.savefig(f'p{no}.png')
-        plt.show()
+    # #   1. plot and save P(t)/P(0) = f(t) for each case
+    #     plt.plot(tpp0[:, 0], tpp0[:, 1])
+    #     plt.title(f'Scenarij {no}')
+    #     plt.tick_params(axis='both', which='major', labelsize=11)
+    #     plt.xlabel('t [s]')
+    #     plt.ylabel(f'P(t)/P$_{"0"}$(t)')
+    #     plt.grid(which='major', axis='both')
+    # #   1.1 save figure
+    # #     plt.savefig(f'p{no}.png')
+    #     plt.show()
 
     # #   1.2. plot reactor period  T = t / ln(P(t)/P0)
     #     lnpp0 = np.log(tpp0[:, 1])
@@ -147,33 +146,33 @@ if __name__ == '__main__':
         tt = tpp0[:, 0]
         pp = the_prompt_neutrons(tpp0[:,1], tt)
 
-        # 2.1. plot the prompt neutrons part in the reactivity equation
-        plt.plot(tt[:-1], pp)
-        plt.subplots_adjust(left=0.17, bottom=0.17)
-        plt.title(f'Prompt neutrons part - scenarij {no}')
-        plt.tick_params(axis='both', which='major', labelsize=11)
-        plt.xlabel('t [s]')
-        plt.ylabel(r"$\rho [\$]$")
-        plt.grid(which='major', axis='both')
-        # 2.2 save figure
-        # plt.savefig(f'prompt{no}.png')
-        plt.show()
+        # # 2.1. plot the prompt neutrons part in the reactivity equation
+        # plt.plot(tt[:-1], pp)
+        # plt.subplots_adjust(left=0.17, bottom=0.17)
+        # plt.title(f'Prompt neutrons part - scenarij {no}')
+        # plt.tick_params(axis='both', which='major', labelsize=11)
+        # plt.xlabel('t [s]')
+        # plt.ylabel(r"$\rho [\$]$")
+        # plt.grid(which='major', axis='both')
+        # # 2.2 save figure
+        # # plt.savefig(f'prompt{no}.png')
+        # plt.show()
 
-        # # 3. delayed neutrons part in the equation
-        #
-        # # 3.1. get the delayed neutron kernel
-        # d1 = delayed_neutron_kernel(tt)
-        #
-        # # # plot D(t) = f(t)
-        # # plt.plot(d1)
-        # # plt.title(f'Delayed neutron kernel scenarij {no}')
-        # # plt.tick_params(axis='both', which='major', labelsize=11)
-        # # plt.xlabel('time after fission event, u[s]')
-        # # plt.ylabel(f'Probability of delayed neutron emission within du')
-        # # plt.grid(which='major', axis='both')
-        # # # save figure
-        # # # plt.savefig(f'D(u){no}.png')
-        # # plt.show()
+        # 3. delayed neutrons part in the equation
+
+        # 3.1. get the delayed neutron kernel
+        d1 = delayed_neutron_kernel(tt)
+
+        # # plot D(t) = f(t)
+        # plt.plot(d1)
+        # plt.title(f'Delayed neutron kernel scenarij {no}')
+        # plt.tick_params(axis='both', which='major', labelsize=11)
+        # plt.xlabel('time after fission event, u[s]')
+        # plt.ylabel(f'Probability of delayed neutron emission within du')
+        # plt.grid(which='major', axis='both')
+        # # save figure
+        # # plt.savefig(f'D(u){no}.png')
+        # plt.show()
         #
         # # 3.2 get the indexes for the power ratio in the integral
         # indexes = []
@@ -193,28 +192,30 @@ if __name__ == '__main__':
         # integral = it.cumtrapz(integrand1, tt[1:].tolist(), dx=0.002)
         #
         # # 3.6. the delayed neutrons part
-        # dd = the_delayed_neutrons(tt[1:], f_list, integral)
-        # # plt.plot(tt[1:-1], dd)
-        # # plt.show()
-        #
-        # # 4. plot prompt + delayed neutrons reactivity
-        # r = []
-        # for i in range(len(dd)):
-        #     if abs(pp[i]+dd[i]) < 0.007:
-        #         r.append((pp[i]+dd[i])*10**5)
-        #     else:
-        #         r.append(pp[i]*10**5)
-        # plt.plot(tt[1:-1], r, color='#FF00FF')
-        # plt.title(f'Reactivity scenarij {no}')
-        # plt.tick_params(axis='both', which='major', labelsize=11)
-        # plt.subplots_adjust(left=0.17, bottom=0.17)
-        # plt.xlabel('t [s]')
-        # plt.ylabel(r"$\rho [pcm]$")
-        # plt.grid(which='major', axis='both')
-        #
-        # # 4.1. save figure
-        # # plt.savefig(f'rho{no}.png')
+        dd = the_delayed_neutrons(tt[1:], tpp0[:,1])
+        # plt.plot(tt[:-1], dd)
         # plt.show()
+        #
+        # 4. plot prompt + delayed neutrons reactivity
+        r = []
+        for i in range(len(dd)):
+            # if the sum of prompt + delayed neutrons part is less than 1 beta
+            if abs(pp[i]+dd[i]) < 0.007:
+                r.append((pp[i]+dd[i])*10**5)
+            else:
+                # the prompt part only
+                r.append(pp[i]*10**5)
+        plt.plot(tt[:-1], r, color='#FF00FF')
+        plt.title(f'Reactivity scenarij {no}')
+        plt.tick_params(axis='both', which='major', labelsize=11)
+        plt.subplots_adjust(left=0.17, bottom=0.17)
+        plt.xlabel('t [s]')
+        plt.ylabel(r"$\rho [pcm]$")
+        plt.grid(which='major', axis='both')
+
+        # 4.1. save figure
+        # plt.savefig(f'rho{no}.png')
+        plt.show()
         #
         # # 5. multiplication factor k = 1/(1 - rho)
         # k = [1/(1-i*10**-5) for i in r]
