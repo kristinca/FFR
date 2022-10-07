@@ -94,6 +94,22 @@ def the_delayed_neutrons(the_time, p):
     return delayed2
 
 
+def inhour_eq(reactor1_period):
+    """
+    The inhour equation.
+    :param reactor_period: reactor period
+    :return: reactivity.
+    """
+    llambda = 40*(10**(-6))
+    beta = 0.007
+    lam = 0.077
+    ro1 = []
+    for el in reactor1_period:
+        ro11 = (llambda/el)+(beta/(1+lam*el))
+        ro1.append(ro11)
+    return ro1
+
+
 def the_prompt_neutrons(p, t_n):
     """
     A function that calculates the prompt neutrons contribution to the reactivity.
@@ -128,18 +144,29 @@ if __name__ == '__main__':
     # #     plt.savefig(f'p{no}.png')
     #     plt.show()
 
-    # #   1.2. plot reactor period  T = t / ln(P(t)/P0)
-    #     lnpp0 = np.log(tpp0[:, 1])
-    #     reactor_period = [tpp0[i]/lnpp0[i] for i in range(1, len(tpp0[:, 0]))]
-    #     # print(reactor_period)
-    #     plt.plot(tpp0[1:, 0], reactor_period[:,0], color='green')
-    #     plt.tick_params(axis='both', which='major', labelsize=11)
-    #     plt.xlabel('t [s]')
-    #     plt.ylabel(f'T [s]')
-    #     plt.grid(which='major', axis='both')
-    #     #   1.1 save figure
-    #     # plt.savefig(f'T{no}.png')
-    #     plt.show()
+    #   1.2. plot reactor period  T = t / ln(P(t)/P0)
+        lnpp0 = np.log(tpp0[:, 1])
+        reactor_period = [tpp0[i]/lnpp0[i] for i in range(1, len(tpp0[:, 0]))]
+        rp = list(zip(*reactor_period))[0]
+        # plt.plot(tpp0[1:,0], rp, color='green')
+        # plt.tick_params(axis='both', which='major', labelsize=11)
+        # plt.xlabel('t [s]')
+        # plt.ylabel(f'T [s]')
+        # plt.grid(which='major', axis='both')
+        # #   1.1 save figure
+        # # plt.savefig(f'T{no}.png')
+        # plt.show()
+
+        # 1.3 the inhour equation
+        ro_inhour = inhour_eq(rp)
+        plt.plot(tpp0[1:, 0], ro_inhour, color='red')
+        plt.title(f'Inhour Reactivity scenarij {no}')
+        plt.tick_params(axis='both', which='major', labelsize=11)
+        plt.subplots_adjust(left=0.17, bottom=0.17)
+        plt.xlabel('t [s]')
+        plt.ylabel(r"$\rho [pcm]$")
+        plt.grid(which='major', axis='both')
+        plt.show()
 
 
         # 2. prompt neutrons part in the reactivity equation
