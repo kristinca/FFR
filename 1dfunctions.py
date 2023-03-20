@@ -5,21 +5,27 @@ import numpy as np
 
 def get_flux_1d():
     """
-    :return: The reactor flux in 1D.
+    :return: The reactor flux in 1D
     """
-    y = [i for i in range(-35, 36)]
-    # hr = 70
-    # Sigma (Si-30) = sigma(Si-30)(n,gamma)*N(Si-30)
-    sigmaSi30 = 107.2 * 10**(-27)
-    # nSi30_ = (roSi30*Na)/MSi30
-    nSi30_ = (2.33*6.02214*10**23)/29.9737701
-    sigmaSi30_ = sigmaSi30*nSi30_
-    print(f'SigmaSi30 = {sigmaSi30_}, NSi30= {nSi30_}')
-    f0 = 10**13
-    f1 = []
-    for el1 in y:
-        f1.append(f0*math.cos(math.radians((math.pi*el1)/70)))
-    return f1, sigmaSi30_
+    # hr = 70 [cm]
+    h = 70
+    # split the y axis into 70 elements, 1 cm each
+    y = [elem for elem in range(-35, 36)]
+    # Sigma(Si-30) = sigma(Si-30)(n,gamma)*N(Si-30)
+    sigma_si_30_micro = 107.2 * 10**(-27)
+    # n_si_30 = (roSi30*Na)/MSi30
+    # rho(Si-30) = 2.33 [g/cm^3]
+    rho_si_30 = 2.33
+    na = 6.022*math.pow(10, 23)
+    # M(Si-30) = 29.973770 [g/mol]
+    molar_mass_si_30 = 29.973770
+    n_si_30 = (rho_si_30*na)/molar_mass_si_30
+    sigma_si_30 = sigma_si_30_micro*n_si_30
+    print(f'SigmaSi30 = {sigma_si_30}, NSi30= {n_si_30}')
+    # initial flux = f0 = 10^13 [1/s*cm^2]
+    f0 = math.pow(10, 13)
+    flux_1d = [f0*(math.cos((math.pi*element)/70)) for element in y]
+    return flux_1d, sigma_si_30
 
 
 # get the flux in 1D and SigmaSi30
