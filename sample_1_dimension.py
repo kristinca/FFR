@@ -89,7 +89,7 @@ def going_down_first_time(ift, jft, reactor_flux, sigmasi30):
 
 def going_up(n, ii, jj, reactor_flux, sigmasi30, np_up, h_up):
     """
-    A function that calculates from initial time till the Si-30 sample reaches the top from the bottom.
+    A function that calculates from a given time till the Si-30 sample reaches the top from the bottom.
     :param n: the n-th time of going  up
     :param ii: highest index of the Si-30 sample on the initial flux indexes scale
     :param jj: lowest index of the Si-30 sample on the initial flux indexes scale
