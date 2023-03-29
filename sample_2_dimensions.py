@@ -51,9 +51,9 @@ def going_down_first_time(ift, jft, reactor_flux, sigmasi30):
             np2_[:, el2] = np2_[:, el2] + sigma_si30*np.array(reactor_flux[ift:jft]) * math.exp(-sigmasi30 * el2)
             if el1 != 0:
                 h_0[:, 0] = [el1 for i in range(20)]
-                h_0[:, el2] = np2_[:, el2] - np.mean(np2_[:, el2]) / (np.max(np2_[:, el2]) - np.min(np2_[:, el2]))
+                # h_0[:, el2] = (np.max(np2_[:, el2]) - np.min(np2_[:, el2])) / np.mean(np2_[:, el2])
         if el1 != 0:
-            h_down.append(np.mean(h_0))
+            h_down.append((np.amax(np2_[:, 1:6]) - np.amin(np2_[:, 1:6]))/np.mean(np2_[:, 1:6]))
         ift += 1
         jft += 1
     return ift, jft, np2_, h_down, h_0
@@ -77,15 +77,14 @@ def going_up(n_times, ii, jj, reactor_flux, sigmasi30, np_up, h_up):
     tu = t_up(n_times)
     h_0 = np.zeros((20, 6))
     y = [i for i in range(1, 6)]
-    # np_up = np.fliplr(np_up)
     for el1 in tu:
         print(f't={el1} [s], i={ii}, j={jj}')
         for el2 in y:
             np_up[:, 0] = [el1 for i in range(20)]
             np_up[:, el2] = np_up[:, el2] + sigmasi30*np.array(reactor_flux[ii:jj]) * math.exp(-sigmasi30 * el2)
             h_0[:, 0] = [el1 for i in range(20)]
-            h_0[:, el2] = np_up[:, el2] - np.mean(np_up[:, el2]) / (np.max(np_up[:, el2]) - np.min(np_up[:, el2]))
-        h_up.append(np.mean(h_0))
+            # h_0[:, el2] = (np.max(np_up[:, el2]) - np.min(np_up[:, el2])) / np.mean(np_up[:, el2])
+        h_up.append((np.amax(np_up[:, 1:6]) - np.amin(np_up[:, 1:6])) / np.mean(np_up[:, 1:6]))
         ii -= 1
         jj -= 1
     return ii, jj, np_up, h_up, h_0
@@ -115,8 +114,8 @@ def going_down(n_times, i_d, j_d, reactor_flux, sigmasi30, np_down, h_down):
             np_down[:, 0] = [el1 for i in range(20)]
             np_down[:, el2] = np_down[:, el2] + sigmasi30*np.array(reactor_flux[i_d:j_d]) * math.exp(-sigmasi30 * el2)
             h_0[:, 0] = [el1 for i in range(20)]
-            h_0[:, el2] = np_down[:, el2] - np.mean(np_down[:, el2]) / (np.max(np_down[:, el2]) - np.min(np_down[:, el2]))
-        h_down.append(np.mean(h_0))
+            # h_0[:, el2] = (np.max(np_down[:, el2]) - np.min(np_down[:, el2])) / np.mean(np_down[:, el2])
+        h_down.append((np.amax(np_down[:, 1:6]) - np.amin(np_down[:, 1:6])) / np.mean(np_down[:, 1:6]))
         i_d += 1
         j_d += 1
     return i_d, j_d, np_down, h_down, h_0
@@ -148,14 +147,13 @@ if __name__ == '__main__':
     ith = [i1]
     jth = [j1]
 
-    n_final, h_final, hz1 = up_down(10, np1_, h1_, reactor_flux=f, sigmasi30=sigma_si30)
+    n_final, h_final, hz1 = up_down(3, np1_, h1_, reactor_flux=f, sigmasi30=sigma_si30)
 
     # plot Np at final t of the time interval defined above
 
     fig = plt.figure(dpi=128, figsize=(10, 10))
     plt.imshow(n_final[:, 1:])
     plt.tick_params(axis='both', which='major', labelsize=11)
-    # plt.gca().invert_yaxis()
     plt.title(f'$N_{"{P-31}"}$ at t = {n_final[-1,0]} s')
     plt.xlabel('dv [cm]')
     plt.ylabel('h [cm]')
@@ -167,22 +165,40 @@ if __name__ == '__main__':
     plt.show()
 
     # # plot H at final t of the time interval defined above
-    #
-    plt.imshow(hz1[:, 1:])
-    plt.colorbar(pad=0.15)
-    plt.gca().invert_yaxis()
-    plt.xticks(ticks=range(5), labels=range(1, 6))
-    plt.yticks(ticks=range(20), labels=range(1, 21))
-    plt.title(f'H at t = {n_final[-1,0]} s')
-    plt.xlabel('dv [cm]')
-    plt.ylabel('h [cm]')
-    plt.grid(which='major', axis='both')
-    # save figure
-    # plt.savefig(f'2dH{n[-1,0]}.png')
-    plt.show()
+    # #
+    # plt.imshow(hz1[:, 1:])
+    # plt.colorbar(pad=0.15)
+    # plt.gca().invert_yaxis()
+    # plt.xticks(ticks=range(5), labels=range(1, 6))
+    # plt.yticks(ticks=range(20), labels=range(1, 21))
+    # plt.title(f'H at t = {n_final[-1,0]} s')
+    # plt.xlabel('dv [cm]')
+    # plt.ylabel('h [cm]')
+    # plt.grid(which='major', axis='both')
+    # # save figure
+    # # plt.savefig(f'2dH{n[-1,0]}.png')
+    # plt.show()
 
     # plot H = f(t)
-    plt.plot(h_final, '-')
+    max_val = max(h_final)
+    max_pos = h_final.index(max_val)
+    min_val = min(h_final)
+    min_pos = h_final.index(min_val)
+    last_val = h_final[-1]
+    last_pos = len(h_final)-1
+    plt.plot(h_final, '-', color='purple')
+    plt.scatter(max_pos, max_val, color='red')
+    plt.annotate(f"$h_{'{max}'}$ = {round(max_val,4)} at t = {max_pos+1} [s]", xy=(max_pos, max_val),
+                 xytext=(max_pos+2, max_val), ha='left', color='red',
+                 va='bottom')
+    plt.scatter(min_pos, min_val, color='blue')
+    plt.annotate(f"$h_{'{min}'}$ = {round(min_val, 4)} at t = {min_pos+1} [s]", xy=(min_pos, min_val),
+                 xytext=(min_pos+2, min_val+0.009), ha='left', color='blue',
+                 va='top')
+    plt.scatter(last_pos, last_val, color='green')
+    plt.annotate(f"$h_{'{final}'}$ = {round(h_final[-1], 4)} at t = {len(h_final)+1} [s]", xy=(last_pos, last_val),
+                 xytext=(last_pos-2, last_val), ha='right', color='green',
+                 va='bottom')
     plt.title(f'H = f (t)')
     plt.xlabel('time [s]')
     plt.ylabel('H [/]')
