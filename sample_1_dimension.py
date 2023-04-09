@@ -166,23 +166,48 @@ if __name__ == '__main__':
     iii = [i1]
     jjj = [j1]
     # going up and down 5 times
-    num = 50
+    num = 5
     np31, hom = up_down(num, np1_, h1_, reactor_flux=f, sigmasi30=sigma_si30)
 
     # plot Np31 = f(h)
 
-    plt.plot(np31[:, 1] / 10 ** 13, '-', color='purple')
+    # plot Np31 = f(h) at start, end of the sample, and at the position of max Np31 value
+
+    data1 = np31[:, 1] / 10 ** 13
+    max_value = np.max(data1)
+    min_value = np.min(data1)
+    last_value = data1[-1]
+
+    plt.scatter(np.argmin(data1), min_value, color='blue', label=f"$N_{'{P-31}'}$ = {round(min_value, 4)} $[10^{'{13}'}/cm^3]$")
+    plt.scatter(np.argmax(data1), max_value, color='red', label=f"$N_{'{P-31}'}$ = {round(max_value, 4)} $[10^{'{13}'}/cm^3]$")
+    plt.scatter(19, last_value, color='green', label=f"$N_{'{P-31}'}$ = {round(last_value, 4)} $[10^{'{13}'}/cm^3]$")
+
+    plt.plot(data1, '-', color='purple')
     plt.title('$\mathregular{N_{P-31 }}$ = f (h)')
     plt.xlabel('h')
     plt.ylabel('$\mathregular{N_{P-31} [10^{13}/cm^3]}$')
     plt.ticklabel_format(style='plain', useOffset=False, axis='both')
-    plt.subplots_adjust(left=0.2)
+    plt.grid()
+    plt.legend()
     # save figure
-    # plt.savefig(f'1dN{num}.png')
+    plt.savefig(f'images/1dN{num}_t{len(hom)}.png')
     plt.show()
 
     # plot H = f(t)
 
+    # plot H = f(t) at max, min and last H value
+
+    max_val = max(hom)
+    max_pos = hom.index(max_val)
+    min_val = min(hom)
+    min_pos = hom.index(min_val)
+    last_val = hom[-1]
+    last_pos = len(hom) - 1
+    plt.scatter(min_pos, min_val, color='blue', label=f"$H_{'{min}'}$ = {round(min_val, 4)} at t = {min_pos + 1} [s]")
+    plt.scatter(max_pos, max_val, color='red', label=f"$H_{'{max}'}$ = {round(max_val, 4)} at t = {max_pos + 1} [s]")
+    plt.scatter(last_pos, last_val, color='green',
+                label=f"$H_{'{final}'}$ = {round(last_val, 4)} at t = {last_pos + 1} [s]")
+    plt.legend()
     plt.plot(hom, '-')
     plt.title(f'H = f (t)')
     plt.xlabel('time [s]')
@@ -190,5 +215,5 @@ if __name__ == '__main__':
     plt.grid(which='major', axis='both')
     plt.subplots_adjust(left=0.2)
     # save figure
-    # plt.savefig(f'1dH{num}.png')
+    plt.savefig(f'images/1dH{num}t{last_pos+1}.png')
     plt.show()
