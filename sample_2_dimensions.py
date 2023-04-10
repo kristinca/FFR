@@ -147,11 +147,10 @@ if __name__ == '__main__':
     ith = [i1]
     jth = [j1]
 
-    n_final, h_final, hz1 = up_down(3, np1_, h1_, reactor_flux=f, sigmasi30=sigma_si30)
+    n_final, h_final, hz1 = up_down(5, np1_, h1_, reactor_flux=f, sigmasi30=sigma_si30)
 
     # plot Np at final t of the time interval defined above
 
-    fig = plt.figure(dpi=128, figsize=(10, 10))
     plt.imshow(n_final[:, 1:])
     plt.tick_params(axis='both', which='major', labelsize=11)
     plt.title(f'$N_{"{P-31}"}$ at t = {n_final[-1,0]} s')
@@ -161,48 +160,31 @@ if __name__ == '__main__':
     plt.xticks(ticks=range(5), labels=range(1, 6))
     plt.yticks(ticks=range(20), labels=range(1, 21))
     # save figure
-    # plt.savefig(f'2dN{n[-1,0]}.png')
+    plt.savefig(f'images/2dN_t{n_final[-1,0]}.png')
     plt.show()
 
-    # # plot H at final t of the time interval defined above
-    # #
-    # plt.imshow(hz1[:, 1:])
-    # plt.colorbar(pad=0.15)
-    # plt.gca().invert_yaxis()
-    # plt.xticks(ticks=range(5), labels=range(1, 6))
-    # plt.yticks(ticks=range(20), labels=range(1, 21))
-    # plt.title(f'H at t = {n_final[-1,0]} s')
-    # plt.xlabel('dv [cm]')
-    # plt.ylabel('h [cm]')
-    # plt.grid(which='major', axis='both')
-    # # save figure
-    # # plt.savefig(f'2dH{n[-1,0]}.png')
-    # plt.show()
-
     # plot H = f(t)
+
+    # plot max, min and final H value
+
     max_val = max(h_final)
     max_pos = h_final.index(max_val)
-    min_val = min(h_final)
+    min_val = min(h_final[1:])
     min_pos = h_final.index(min_val)
     last_val = h_final[-1]
     last_pos = len(h_final)-1
+    plt.scatter(min_pos, min_val, color='blue', label=f"$h_{'{min}'}$ = {round(min_val, 4)} at t = {min_pos} [s]")
+    plt.scatter(max_pos, max_val, color='red', label=f"$h_{'{max}'}$ = {round(max_val,4)} at t = {max_pos} [s]")
+    plt.scatter(last_pos, last_val, color='green', label=f"$h_{'{final}'}$ = {round(h_final[-1], 4)} at t = {len(h_final)} [s]")
     plt.plot(h_final, '-', color='purple')
     plt.scatter(max_pos, max_val, color='red')
-    plt.annotate(f"$h_{'{max}'}$ = {round(max_val,4)} at t = {max_pos+1} [s]", xy=(max_pos, max_val),
-                 xytext=(max_pos+2, max_val), ha='left', color='red',
-                 va='bottom')
     plt.scatter(min_pos, min_val, color='blue')
-    plt.annotate(f"$h_{'{min}'}$ = {round(min_val, 4)} at t = {min_pos+1} [s]", xy=(min_pos, min_val),
-                 xytext=(min_pos+2, min_val+0.009), ha='left', color='blue',
-                 va='top')
     plt.scatter(last_pos, last_val, color='green')
-    plt.annotate(f"$h_{'{final}'}$ = {round(h_final[-1], 4)} at t = {len(h_final)+1} [s]", xy=(last_pos, last_val),
-                 xytext=(last_pos-2, last_val), ha='right', color='green',
-                 va='bottom')
     plt.title(f'H = f (t)')
     plt.xlabel('time [s]')
     plt.ylabel('H [/]')
+    plt.legend()
     plt.grid(which='major', axis='both')
     # save figure
-    # plt.savefig(f'2dHt{n[-1,0]}.png')
+    plt.savefig(f'images/2dHt{last_pos}.png')
     plt.show()
