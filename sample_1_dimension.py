@@ -187,12 +187,10 @@ if __name__ == '__main__':
     plt.xlabel('h')
     plt.ylabel('$\mathregular{N_{P-31} [10^{13}/cm^3]}$')
     plt.ticklabel_format(style='plain', useOffset=False, axis='both')
-    plt.grid()
+    # plt.grid()
     plt.legend()
     # save figure
     plt.savefig(f'images/1dN{num}_t{len(hom)}.png')
-    plt.show()
-
     # plot H = f(t)
 
     # plot H = f(t) at max, min and last H value

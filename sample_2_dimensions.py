@@ -147,7 +147,7 @@ if __name__ == '__main__':
     ith = [i1]
     jth = [j1]
 
-    n_final, h_final, hz1 = up_down(5, np1_, h1_, reactor_flux=f, sigmasi30=sigma_si30)
+    n_final, h_final, hz1 = up_down(10, np1_, h1_, reactor_flux=f, sigmasi30=sigma_si30)
 
     # plot Np at final t of the time interval defined above
 
@@ -173,9 +173,9 @@ if __name__ == '__main__':
     min_pos = h_final.index(min_val)
     last_val = h_final[-1]
     last_pos = len(h_final)-1
-    plt.scatter(min_pos, min_val, color='blue', label=f"$h_{'{min}'}$ = {round(min_val, 4)} at t = {min_pos} [s]")
-    plt.scatter(max_pos, max_val, color='red', label=f"$h_{'{max}'}$ = {round(max_val,4)} at t = {max_pos} [s]")
-    plt.scatter(last_pos, last_val, color='green', label=f"$h_{'{final}'}$ = {round(h_final[-1], 4)} at t = {len(h_final)} [s]")
+    plt.scatter(min_pos, min_val, color='blue', label=f"$H_{'{min}'}$ = {round(min_val, 4)} at t = {min_pos} [s]")
+    plt.scatter(max_pos, max_val, color='red', label=f"$H_{'{max}'}$ = {round(max_val,4)} at t = {max_pos} [s]")
+    plt.scatter(last_pos, last_val, color='green', label=f"$H_{'{final}'}$ = {round(h_final[-1], 4)} at t = {len(h_final)} [s]")
     plt.plot(h_final, '-', color='purple')
     plt.scatter(max_pos, max_val, color='red')
     plt.scatter(min_pos, min_val, color='blue')
