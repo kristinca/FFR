@@ -147,20 +147,20 @@ if __name__ == '__main__':
     ith = [i1]
     jth = [j1]
 
-    n_final, h_final, hz1 = up_down(10, np1_, h1_, reactor_flux=f, sigmasi30=sigma_si30)
+    n_final, h_final, hz1 = up_down(5, np1_, h1_, reactor_flux=f, sigmasi30=sigma_si30)
 
     # plot Np at final t of the time interval defined above
 
     plt.imshow(n_final[:, 1:])
     plt.tick_params(axis='both', which='major', labelsize=11)
-    plt.title(f'$N_{"{P-31}"}$ at t = {n_final[-1,0]} s')
+    plt.title(f'$N_{"{P-31}"}$ at t = {int(n_final[-1,0])} [s]')
     plt.xlabel('dv [cm]')
     plt.ylabel('h [cm]')
     plt.colorbar(pad=0.15)
     plt.xticks(ticks=range(5), labels=range(1, 6))
     plt.yticks(ticks=range(20), labels=range(1, 21))
     # save figure
-    plt.savefig(f'images/2dN_t{n_final[-1,0]}.png')
+    plt.savefig(f'images/2dN_t{int(n_final[-1,0])}.png')
     plt.show()
 
     # plot H = f(t)
@@ -186,5 +186,5 @@ if __name__ == '__main__':
     plt.legend()
     plt.grid(which='major', axis='both')
     # save figure
-    plt.savefig(f'images/2dHt{last_pos}.png')
+    plt.savefig(f'images/2dHt{last_pos+1}.png')
     plt.show()
