@@ -4,7 +4,6 @@ import re
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import scipy.integrate as it
 
 
 def clean_data(file_name):
@@ -132,48 +131,51 @@ if __name__ == '__main__':
 
         # get numpy array with cleaned data -> time, power ratio
         tpp0 = np.loadtxt(f'scenarij{no}.txt', dtype='float')
-
-    # #   1. plot and save P(t)/P(0) = f(t) for each case
-    #     plt.plot(tpp0[:, 0], tpp0[:, 1])
-    #     plt.title(f'Scenarij {no}')
-    #     plt.tick_params(axis='both', which='major', labelsize=11)
-    #     plt.xlabel('t [s]')
-    #     plt.ylabel(f'P(t)/P$_{"0"}$(t)')
-    #     plt.grid(which='major', axis='both')
-    # #   1.1 save figure
-    # #     plt.savefig(f'p{no}.png')
-    #     plt.show()
-
-    #   1.2. plot reactor period  T = t / ln(P(t)/P0)
         lnpp0 = np.log(tpp0[:, 1])
-        reactor_period = [tpp0[i]/lnpp0[i] for i in range(1, len(tpp0[:, 0]))]
-        rp = list(zip(*reactor_period))[0]
-        # plt.plot(tpp0[1:,0], rp, color='green')
-        # plt.tick_params(axis='both', which='major', labelsize=11)
-        # plt.xlabel('t [s]')
-        # plt.ylabel(f'T [s]')
-        # plt.grid(which='major', axis='both')
-        # #   1.1 save figure
-        # # plt.savefig(f'T{no}.png')
-        # plt.show()
 
-        # 1.3 the inhour equation
-        ro_inhour = inhour_eq(rp)
-        plt.plot(tpp0[1:, 0], ro_inhour, color='red')
-        plt.title(f'Inhour Reactivity scenarij {no}')
+    #   1. plot and save P(t)/P(0) = f(t) for each case
+        plt.plot(tpp0[:, 0], tpp0[:, 1])
+        plt.title(f'Scenarij {no}')
         plt.tick_params(axis='both', which='major', labelsize=11)
-        plt.subplots_adjust(left=0.17, bottom=0.17)
         plt.xlabel('t [s]')
-        plt.ylabel(r"$\rho [pcm]$")
+        plt.ylabel(f'P(t)/P$_{"0"}$(t)')
         plt.grid(which='major', axis='both')
+        plt.yscale('log')
+        plt.xscale('log')
+    #   1.1 save figure
+    #     plt.savefig(f'p{no}.png')
         plt.show()
+
+    # #   1.2. plot reactor period  T = t / ln(P(t)/P0)
+    #     lnpp0 = np.log(tpp0[:, 1])
+    #     reactor_period = [tpp0[i]/lnpp0[i] for i in range(1, len(tpp0[:, 0]))]
+    #     rp = list(zip(*reactor_period))[0]
+    #     # plt.plot(tpp0[1:,0], rp, color='green')
+    #     # plt.tick_params(axis='both', which='major', labelsize=11)
+    #     # plt.xlabel('t [s]')
+    #     # plt.ylabel(f'T [s]')
+    #     # plt.grid(which='major', axis='both')
+    #     # #   1.1 save figure
+    #     # # plt.savefig(f'T{no}.png')
+    #     # plt.show()
+
+        # # 1.3 the inhour equation
+        # ro_inhour = inhour_eq(rp)
+        # plt.plot(tpp0[1:, 0], ro_inhour, color='red')
+        # plt.title(f'Inhour Reactivity scenarij {no}')
+        # plt.tick_params(axis='both', which='major', labelsize=11)
+        # plt.subplots_adjust(left=0.17, bottom=0.17)
+        # plt.xlabel('t [s]')
+        # plt.ylabel(r"$\rho [pcm]$")
+        # plt.grid(which='major', axis='both')
+        # plt.show()
 
 
         # 2. prompt neutrons part in the reactivity equation
-        tt = tpp0[:, 0]
-        pp = the_prompt_neutrons(tpp0[:,1], tt)
+        # tt = tpp0[:, 0]
+        # pp = the_prompt_neutrons(tpp0[:,1], tt)
 
-        # # 2.1. plot the prompt neutrons part in the reactivity equation
+        # 2.1. plot the prompt neutrons part in the reactivity equation
         # plt.plot(tt[:-1], pp)
         # plt.subplots_adjust(left=0.17, bottom=0.17)
         # plt.title(f'Prompt neutrons part - scenarij {no}')
@@ -181,14 +183,15 @@ if __name__ == '__main__':
         # plt.xlabel('t [s]')
         # plt.ylabel(r"$\rho [\$]$")
         # plt.grid(which='major', axis='both')
-        # # 2.2 save figure
-        # # plt.savefig(f'prompt{no}.png')
+        # 2.2 save figure
+        # plt.savefig(f'prompt{no}.png')
         # plt.show()
 
         # 3. delayed neutrons part in the equation
 
         # 3.1. get the delayed neutron kernel
-        d1 = delayed_neutron_kernel(tt)
+        # d1 = delayed_neutron_kernel(tt)
+
 
         # # plot D(t) = f(t)
         # plt.plot(d1)
@@ -219,30 +222,30 @@ if __name__ == '__main__':
         # integral = it.cumtrapz(integrand1, tt[1:].tolist(), dx=0.002)
         #
         # # 3.6. the delayed neutrons part
-        dd = the_delayed_neutrons(tt[1:], tpp0[:,1])
+        # dd = the_delayed_neutrons(tt[1:], tpp0[:,1])
         # plt.plot(tt[:-1], dd)
         # plt.show()
         #
-        # 4. plot prompt + delayed neutrons reactivity
-        r = []
-        for i in range(len(dd)):
-            # if the sum of prompt + delayed neutrons part is less than 1 beta
-            if abs(pp[i]+dd[i]) < 0.007:
-                r.append((pp[i]+dd[i])*10**5)
-            else:
-                # the prompt part only
-                r.append(pp[i]*10**5)
-        plt.plot(tt[:-1], r, color='#FF00FF')
-        plt.title(f'Reactivity scenarij {no}')
-        plt.tick_params(axis='both', which='major', labelsize=11)
-        plt.subplots_adjust(left=0.17, bottom=0.17)
-        plt.xlabel('t [s]')
-        plt.ylabel(r"$\rho [pcm]$")
-        plt.grid(which='major', axis='both')
-
+        # # 4. plot prompt + delayed neutrons reactivity
+        # r = []
+        # for i in range(len(dd)):
+        #     # if the sum of prompt + delayed neutrons part is less than 1 beta
+        #     if abs(pp[i]+dd[i]) < 0.007:
+        #         r.append((pp[i]+dd[i])*10**5)
+        #     else:
+        #         # the prompt part only
+        #         r.append(pp[i]*10**5)
+        # plt.plot(tt[:-1], r, color='#FF00FF')
+        # plt.title(f'Reactivity scenarij {no}')
+        # plt.tick_params(axis='both', which='major', labelsize=11)
+        # plt.subplots_adjust(left=0.17, bottom=0.17)
+        # plt.xlabel('t [s]')
+        # plt.ylabel(r"$\rho [pcm]$")
+        # plt.grid(which='major', axis='both')
+        #
         # 4.1. save figure
         # plt.savefig(f'rho{no}.png')
-        plt.show()
+        # plt.show()
         #
         # # 5. multiplication factor k = 1/(1 - rho)
         # k = [1/(1-i*10**-5) for i in r]
