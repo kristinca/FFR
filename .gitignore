@@ -14,6 +14,7 @@ db.sqlite3
 # Static folder at project root
 /static/
 /images/
+/images2/
 .idea/
 Scenarij_1.out
 Scenarij_2.out

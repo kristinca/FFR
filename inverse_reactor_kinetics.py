@@ -156,8 +156,10 @@ if __name__ == '__main__':
         plt.scatter(last_pos, last_val, color='green', marker='^',
                     label=f"$P(t)/P(0)_{'{final}'}$ = {round(last_val, 4)} at t = {last_pos} [s]")
         plt.legend()
+        plt.yscale('log')
+        plt.xscale('log')
     #   1.1 save figure
-        plt.savefig(f'images2/p{no}.png')
+    #     plt.savefig(f'images2/logp{no}.png')
         plt.show()
 
     # #   1.2. plot reactor period  T = t / ln(P(t)/P0)
