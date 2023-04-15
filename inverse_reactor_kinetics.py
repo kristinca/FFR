@@ -138,12 +138,26 @@ if __name__ == '__main__':
         plt.title(f'Scenarij {no}')
         plt.tick_params(axis='both', which='major', labelsize=11)
         plt.xlabel('t [s]')
-        plt.ylabel(f'P(t)/P$_{"0"}$(t)')
+        plt.ylabel(f'P(t)/P(0)(t)')
         plt.grid(which='major', axis='both')
-        plt.yscale('log')
-        plt.xscale('log')
+        # plot P(t)/P(0) = f(t) at max, min and last H value
+        ft = tpp0[:, 1].tolist()
+        tt = tpp0[:, 0].tolist()
+        max_val = max(ft)
+        max_pos = tt[ft.index(max_val)]
+        min_val = min(ft)
+        min_pos = tt[ft.index(min_val)]
+        last_val = ft[-1]
+        last_pos = tt[-1]
+        plt.scatter(min_pos, min_val, color='orange',
+                    label=f"$P(t)/P(0)_{'{min}'}$ = {min_val} at t = {min_pos} [s]")
+        plt.scatter(max_pos, max_val, color='red', marker='s',
+                    label=f"$P(t)/P(0)_{'{max}'}$ = {round(max_val, 4)} at t = {max_pos} [s]")
+        plt.scatter(last_pos, last_val, color='green', marker='^',
+                    label=f"$P(t)/P(0)_{'{final}'}$ = {round(last_val, 4)} at t = {last_pos} [s]")
+        plt.legend()
     #   1.1 save figure
-    #     plt.savefig(f'p{no}.png')
+        plt.savefig(f'images2/p{no}.png')
         plt.show()
 
     # #   1.2. plot reactor period  T = t / ln(P(t)/P0)
