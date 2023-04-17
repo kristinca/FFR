@@ -131,7 +131,6 @@ if __name__ == '__main__':
 
         # get numpy array with cleaned data -> time, power ratio
         tpp0 = np.loadtxt(f'scenarij{no}.txt', dtype='float')
-        lnpp0 = np.log(tpp0[:, 1])
 
     #   1. plot and save P(t)/P(0) = f(t) for each case
         plt.plot(tpp0[:, 0], tpp0[:, 1])
@@ -140,15 +139,13 @@ if __name__ == '__main__':
         plt.xlabel('t [s]')
         plt.ylabel(f'P(t)/P(0)(t)')
         plt.grid(which='major', axis='both')
-        # plot P(t)/P(0) = f(t) at max, min and last H value
-        ft = tpp0[:, 1].tolist()
-        tt = tpp0[:, 0].tolist()
-        max_val = max(ft)
-        max_pos = tt[ft.index(max_val)]
-        min_val = min(ft)
-        min_pos = tt[ft.index(min_val)]
-        last_val = ft[-1]
-        last_pos = tt[-1]
+        # plot P(t)/P(0) = f(t) at max, min and last P(t)/P(0) value
+        max_val = np.max(tpp0[:, 1])
+        max_pos = tpp0[:, 0][np.argmax(tpp0[:, 1])]
+        min_val = np.min(tpp0[:, 1])
+        min_pos = tpp0[:, 0][np.argmin(tpp0[:, 1])]
+        last_val = tpp0[:, 1][-1]
+        last_pos = tpp0[:, 0][-1]
         plt.scatter(min_pos, min_val, color='orange',
                     label=f"$P(t)/P(0)_{'{min}'}$ = {min_val} at t = {min_pos} [s]")
         plt.scatter(max_pos, max_val, color='red', marker='s',
@@ -199,8 +196,8 @@ if __name__ == '__main__':
         # plt.xlabel('t [s]')
         # plt.ylabel(r"$\rho [\$]$")
         # plt.grid(which='major', axis='both')
-        # 2.2 save figure
-        # plt.savefig(f'prompt{no}.png')
+        # # 2.2 save figure
+        # # plt.savefig(f'prompt{no}.png')
         # plt.show()
 
         # 3. delayed neutrons part in the equation
