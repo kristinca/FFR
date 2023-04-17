@@ -132,45 +132,61 @@ if __name__ == '__main__':
         # get numpy array with cleaned data -> time, power ratio
         tpp0 = np.loadtxt(f'scenarij{no}.txt', dtype='float')
 
-    #   1. plot and save P(t)/P(0) = f(t) for each case
-        plt.plot(tpp0[:, 0], tpp0[:, 1])
-        plt.title(f'Scenarij {no}')
-        plt.tick_params(axis='both', which='major', labelsize=11)
-        plt.xlabel('t [s]')
-        plt.ylabel(f'P(t)/P(0)(t)')
-        plt.grid(which='major', axis='both')
-        # plot P(t)/P(0) = f(t) at max, min and last P(t)/P(0) value
-        max_val = np.max(tpp0[:, 1])
-        max_pos = tpp0[:, 0][np.argmax(tpp0[:, 1])]
-        min_val = np.min(tpp0[:, 1])
-        min_pos = tpp0[:, 0][np.argmin(tpp0[:, 1])]
-        last_val = tpp0[:, 1][-1]
-        last_pos = tpp0[:, 0][-1]
-        plt.scatter(min_pos, min_val, color='orange',
-                    label=f"$P(t)/P(0)_{'{min}'}$ = {min_val} at t = {min_pos} [s]")
-        plt.scatter(max_pos, max_val, color='red', marker='s',
-                    label=f"$P(t)/P(0)_{'{max}'}$ = {round(max_val, 4)} at t = {max_pos} [s]")
-        plt.scatter(last_pos, last_val, color='green', marker='^',
-                    label=f"$P(t)/P(0)_{'{final}'}$ = {round(last_val, 4)} at t = {last_pos} [s]")
-        plt.legend()
-        plt.yscale('log')
-        plt.xscale('log')
+    # #   1. plot and save P(t)/P(0) = f(t) for each case
+    #     plt.plot(tpp0[:, 0], tpp0[:, 1])
+    #     plt.title(f'Scenarij {no}')
+    #     plt.tick_params(axis='both', which='major', labelsize=11)
+    #     plt.xlabel('t [s]')
+    #     plt.ylabel(f'P(t)/P(0)(t)')
+    #     plt.grid(which='major', axis='both')
+    #     # plot P(t)/P(0) = f(t) at max, min and last P(t)/P(0) value
+    #     max_val = np.max(tpp0[:, 1])
+    #     max_pos = tpp0[:, 0][np.argmax(tpp0[:, 1])]
+    #     min_val = np.min(tpp0[:, 1])
+    #     min_pos = tpp0[:, 0][np.argmin(tpp0[:, 1])]
+    #     last_val = tpp0[:, 1][-1]
+    #     last_pos = tpp0[:, 0][-1]
+    #     plt.scatter(min_pos, min_val, color='orange',
+    #                 label=f"$P(t)/P(0)_{'{min}'}$ = {min_val} at t = {min_pos} [s]")
+    #     plt.scatter(max_pos, max_val, color='red', marker='s',
+    #                 label=f"$P(t)/P(0)_{'{max}'}$ = {round(max_val, 4)} at t = {max_pos} [s]")
+    #     plt.scatter(last_pos, last_val, color='green', marker='^',
+    #                 label=f"$P(t)/P(0)_{'{final}'}$ = {round(last_val, 4)} at t = {last_pos} [s]")
+    #     plt.legend()
+    #     plt.yscale('log')
+    #     plt.xscale('log')
     #   1.1 save figure
     #     plt.savefig(f'images2/logp{no}.png')
-        plt.show()
+    #     plt.show()
 
-    # #   1.2. plot reactor period  T = t / ln(P(t)/P0)
-    #     lnpp0 = np.log(tpp0[:, 1])
-    #     reactor_period = [tpp0[i]/lnpp0[i] for i in range(1, len(tpp0[:, 0]))]
-    #     rp = list(zip(*reactor_period))[0]
-    #     # plt.plot(tpp0[1:,0], rp, color='green')
-    #     # plt.tick_params(axis='both', which='major', labelsize=11)
-    #     # plt.xlabel('t [s]')
-    #     # plt.ylabel(f'T [s]')
-    #     # plt.grid(which='major', axis='both')
-    #     # #   1.1 save figure
-    #     # # plt.savefig(f'T{no}.png')
-    #     # plt.show()
+    # 1.2. plot reactor period  T = t / ln(P(t)/P0)
+        lnpp0 = np.log(tpp0[:, 1])
+        reactor_period = [tpp0[:, 0][elem]/lnpp0[elem] for elem in range(1, len(tpp0[:, 0]))]
+        plt.plot(tpp0[1:, 0], reactor_period)
+        plt.tick_params(axis='both', which='major', labelsize=11)
+        plt.title(f'Scenarij {no}')
+        plt.xlabel('t [s]')
+        plt.ylabel(f'T [s]')
+        plt.grid(which='major', axis='both')
+        # T = f(t) at max, min and last T = f(t) value
+        max_val = max(reactor_period)
+        max_pos = tpp0[1:, 0][reactor_period.index(max_val)]
+        min_val = min(reactor_period)
+        min_pos = tpp0[1:, 0][reactor_period.index(min_val)]
+        last_val = reactor_period[-1]
+        last_pos = tpp0[1:, 0][-1]
+        plt.scatter(min_pos, min_val, color='orange',
+                    label=f"$T_{'{min}'}$ = {round(min_val, 4)} [s] at t = {min_pos} [s]")
+        plt.scatter(max_pos, max_val, color='red', marker='s',
+                    label=f"$T_{'{max}'}$ = {round(max_val, 4)} [s] at t = {max_pos} [s]")
+        plt.scatter(last_pos, last_val, color='green', marker='^',
+                    label=f"$T_{'{final}'}$ = {round(last_val, 4)} [s] at t = {last_pos} [s]")
+        plt.legend()
+        # plt.xscale('log')
+        # plt.yscale('log')
+        #   1.1 save figure
+        # plt.savefig(f'images2/reactor_period/T{no}.png')
+        plt.show()
 
         # # 1.3 the inhour equation
         # ro_inhour = inhour_eq(rp)
