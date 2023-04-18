@@ -116,10 +116,10 @@ def the_prompt_neutrons(p, t_n):
     :param t_n: time
     :return: the value of this part of the equation.
     """
-    llambda = 40*(10**(-6))
+    llambda = float(40e-6)
     prompt = []
     for i in range(len(t_n)-1):
-        prompt.append(llambda*(p[i+1]-p[i])/(p[i]*(t_n[i+1]-t_n[i])))
+        prompt.append((llambda*(p[i+1]-p[i]))/(p[i]*0.007*(t_n[i+1]-t_n[i])))
     return prompt
 
 
@@ -159,62 +159,66 @@ if __name__ == '__main__':
     #     plt.savefig(f'images2/logp{no}.png')
     #     plt.show()
 
-    # 1.2. plot reactor period  T = t / ln(P(t)/P0)
-        lnpp0 = np.log(tpp0[:, 1])
-        reactor_period = [tpp0[:, 0][elem]/lnpp0[elem] for elem in range(1, len(tpp0[:, 0]))]
-        plt.plot(tpp0[1:, 0], reactor_period)
+    # # 1.2. plot reactor period  T = t / ln(P(t)/P0)
+    #     lnpp0 = np.log(tpp0[:, 1])
+    #     reactor_period = [tpp0[:, 0][elem]/lnpp0[elem] for elem in range(1, len(tpp0[:, 0]))]
+    #     plt.plot(tpp0[1:, 0], reactor_period)
+    #     plt.tick_params(axis='both', which='major', labelsize=11)
+    #     plt.title(f'Scenarij {no}')
+    #     plt.xlabel('t [s]')
+    #     plt.ylabel(f'T [s]')
+    #     plt.grid(which='major', axis='both')
+    #     # T = f(t) at max, min and last T = f(t) value
+    #     max_val = max(reactor_period)
+    #     max_pos = tpp0[1:, 0][reactor_period.index(max_val)]
+    #     min_val = min(reactor_period)
+    #     min_pos = tpp0[1:, 0][reactor_period.index(min_val)]
+    #     last_val = reactor_period[-1]
+    #     last_pos = tpp0[1:, 0][-1]
+    #     plt.scatter(min_pos, min_val, color='orange',
+    #                 label=f"$T_{'{min}'}$ = {round(min_val, 4)} [s] at t = {min_pos} [s]")
+    #     plt.scatter(max_pos, max_val, color='red', marker='s',
+    #                 label=f"$T_{'{max}'}$ = {round(max_val, 4)} [s] at t = {max_pos} [s]")
+    #     plt.scatter(last_pos, last_val, color='green', marker='^',
+    #                 label=f"$T_{'{final}'}$ = {round(last_val, 4)} [s] at t = {last_pos} [s]")
+    #     plt.legend()
+    #     # plt.xscale('log')
+    #     # plt.yscale('log')
+    #     #   1.1 save figure
+    #     # plt.savefig(f'images2/reactor_period/T{no}.png')
+    #     plt.show()
+
+    # 2. prompt neutrons part in the reactivity equation
+        tt = tpp0[:, 0]
+        pp = the_prompt_neutrons(tpp0[:, 1], tt)
+
+        # 2.1. plot the prompt neutrons part in the reactivity equation
+        plt.plot(tt[:-1], pp)
+        plt.title(f'Prompt neutrons part - scenarij {no}')
         plt.tick_params(axis='both', which='major', labelsize=11)
-        plt.title(f'Scenarij {no}')
         plt.xlabel('t [s]')
-        plt.ylabel(f'T [s]')
+        plt.ylabel(r"$\rho [\$]$")
         plt.grid(which='major', axis='both')
-        # T = f(t) at max, min and last T = f(t) value
-        max_val = max(reactor_period)
-        max_pos = tpp0[1:, 0][reactor_period.index(max_val)]
-        min_val = min(reactor_period)
-        min_pos = tpp0[1:, 0][reactor_period.index(min_val)]
-        last_val = reactor_period[-1]
-        last_pos = tpp0[1:, 0][-1]
+
+        # rho = f(t) at max, min and last rho = f(t) value
+        max_val = max(pp)
+        max_pos = tpp0[:, 0][pp.index(max_val)]
+        min_val = min(pp)
+        min_pos = tpp0[:, 0][pp.index(min_val)]
+        last_val = pp[-1]
+        last_pos = tpp0[:, 0][-1]
         plt.scatter(min_pos, min_val, color='orange',
-                    label=f"$T_{'{min}'}$ = {round(min_val, 4)} [s] at t = {min_pos} [s]")
+                    label=fr"$\rho_{'{min}'}$ = {round(min_val, 4)} [\$] at t = {min_pos} [s]")
         plt.scatter(max_pos, max_val, color='red', marker='s',
-                    label=f"$T_{'{max}'}$ = {round(max_val, 4)} [s] at t = {max_pos} [s]")
+                    label=fr"$\rho_{'{max}'}$ = {round(max_val, 4)} [\$] at t = {max_pos} [s]")
         plt.scatter(last_pos, last_val, color='green', marker='^',
-                    label=f"$T_{'{final}'}$ = {round(last_val, 4)} [s] at t = {last_pos} [s]")
+                    label=fr"$\rho_{'{final}'}$ = {round(last_val, 4)} [\$] at t = {last_pos} [s]")
         plt.legend()
         # plt.xscale('log')
         # plt.yscale('log')
-        #   1.1 save figure
-        # plt.savefig(f'images2/reactor_period/T{no}.png')
+        # 2.2 save figure
+        # plt.savefig(f'prompt{no}.png')
         plt.show()
-
-        # # 1.3 the inhour equation
-        # ro_inhour = inhour_eq(rp)
-        # plt.plot(tpp0[1:, 0], ro_inhour, color='red')
-        # plt.title(f'Inhour Reactivity scenarij {no}')
-        # plt.tick_params(axis='both', which='major', labelsize=11)
-        # plt.subplots_adjust(left=0.17, bottom=0.17)
-        # plt.xlabel('t [s]')
-        # plt.ylabel(r"$\rho [pcm]$")
-        # plt.grid(which='major', axis='both')
-        # plt.show()
-
-
-        # 2. prompt neutrons part in the reactivity equation
-        # tt = tpp0[:, 0]
-        # pp = the_prompt_neutrons(tpp0[:,1], tt)
-
-        # 2.1. plot the prompt neutrons part in the reactivity equation
-        # plt.plot(tt[:-1], pp)
-        # plt.subplots_adjust(left=0.17, bottom=0.17)
-        # plt.title(f'Prompt neutrons part - scenarij {no}')
-        # plt.tick_params(axis='both', which='major', labelsize=11)
-        # plt.xlabel('t [s]')
-        # plt.ylabel(r"$\rho [\$]$")
-        # plt.grid(which='major', axis='both')
-        # # 2.2 save figure
-        # # plt.savefig(f'prompt{no}.png')
-        # plt.show()
 
         # 3. delayed neutrons part in the equation
 
