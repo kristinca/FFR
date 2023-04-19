@@ -118,8 +118,8 @@ def the_prompt_neutrons(p, t_n):
     """
     llambda = float(40e-6)
     prompt = []
-    for i in range(len(t_n)-1):
-        prompt.append((llambda*(p[i+1]-p[i]))/(p[i]*0.007*(t_n[i+1]-t_n[i])))
+    for i in range(1, len(t_n)-1):
+        prompt.append((llambda*(p[i+1]-p[i-1]))/(p[i]*0.007*2*(t_n[i+1]-t_n[i])))
     return prompt
 
 
@@ -193,7 +193,7 @@ if __name__ == '__main__':
         pp = the_prompt_neutrons(tpp0[:, 1], tt)
 
         # 2.1. plot the prompt neutrons part in the reactivity equation
-        plt.plot(tt[:-1], pp)
+        plt.plot(tt[1:-1], pp)
         plt.title(f'Prompt neutrons part - scenarij {no}')
         plt.tick_params(axis='both', which='major', labelsize=11)
         plt.xlabel('t [s]')
