@@ -1,9 +1,11 @@
 import math
 import re
+import time
 
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+from numba import njit
 
 
 def clean_data(file_name):
@@ -65,38 +67,10 @@ def delayed_neutron_kernel(t_end):
     return d
 
 
-def the_integrand(the_time, fint):
-    lam = 0.077
-    t_int = []
-    for i in range(len(the_time)):
-        t_int.append(lam*fint[i]*math.exp(-lam*the_time[i]))
-    return t_int
-
-
-def the_delayed_neutrons(the_time, p):
-    """
-    A function that calculates the delayed neutrons contribution to the reactivity.
-    :param the_time: the time
-    :param p: power ratio
-    :return: the value of this part of the equation.
-    """
-    beta = 0.007
-    lam = 0.077
-    delayed2 = []
-
-    for i in range(len(the_time)):
-        try:
-            delayed1 = beta - beta*((p[i]-p[0])/p[i])*lam**2
-            delayed2.append(delayed1)
-        except IndexError:
-            break
-    return delayed2
-
-
 def inhour_eq(reactor1_period):
     """
     The inhour equation.
-    :param reactor_period: reactor period
+    :param reactor1_period: reactor period
     :return: reactivity.
     """
     llambda = 40*(10**(-6))
@@ -109,6 +83,19 @@ def inhour_eq(reactor1_period):
     return ro1
 
 
+@njit(parallel=True)
+def the_delayed_neutrons(the_time, p, delayedn2):
+    lam = 0.077
+    for t in range(len(the_time)):
+        print(t)
+        int1 = 0.0
+        for u in range(t):
+            int1 += lam * np.exp(-lam * (the_time[t] - the_time[u])) * (p[u] / p[t]) * (the_time[u + 1] - the_time[u])
+        delayed1 = 1 - int1
+        delayedn2[t] = delayed1
+    return delayedn2
+
+
 def the_prompt_neutrons(p, t_n):
     """
     A function that calculates the prompt neutrons contribution to the reactivity.
@@ -118,7 +105,7 @@ def the_prompt_neutrons(p, t_n):
     """
     llambda = float(40e-6)
     prompt = []
-    for i in range(1, len(t_n)-1):
+    for i in range(1, len(t_n.keys())-1):
         prompt.append((llambda*(p[i+1]-p[i-1]))/(p[i]*0.007*2*(t_n[i+1]-t_n[i])))
     return prompt
 
@@ -126,11 +113,16 @@ def the_prompt_neutrons(p, t_n):
 if __name__ == '__main__':
 
     for no in range(1, 7):
+        st = time.perf_counter()
         # get the txt file
         # get_txt_file(no)
 
         # get numpy array with cleaned data -> time, power ratio
         tpp0 = np.loadtxt(f'scenarij{no}.txt', dtype='float')
+        t_dict = {index: element for index, element in enumerate(tpp0[:, 0])}
+        pp0_dict = {index1: element1 for index1, element1 in enumerate(tpp0[:, 1])}
+
+
 
     # #   1. plot and save P(t)/P(0) = f(t) for each case
     #     plt.plot(tpp0[:, 0], tpp0[:, 1])
@@ -190,35 +182,36 @@ if __name__ == '__main__':
 
     # 2. prompt neutrons part in the reactivity equation
         tt = tpp0[:, 0]
-        pp = the_prompt_neutrons(tpp0[:, 1], tt)
-
-        # 2.1. plot the prompt neutrons part in the reactivity equation
-        plt.plot(tt[1:-1], pp)
-        plt.title(f'Prompt neutrons part - scenarij {no}')
-        plt.tick_params(axis='both', which='major', labelsize=11)
-        plt.xlabel('t [s]')
-        plt.ylabel(r"$\rho [\$]$")
-        plt.grid(which='major', axis='both')
-
-        # rho = f(t) at max, min and last rho = f(t) value
-        max_val = max(pp)
-        max_pos = tpp0[:, 0][pp.index(max_val)]
-        min_val = min(pp)
-        min_pos = tpp0[:, 0][pp.index(min_val)]
-        last_val = pp[-1]
-        last_pos = tpp0[:, 0][-1]
-        plt.scatter(min_pos, min_val, color='orange',
-                    label=fr"$\rho_{'{min}'}$ = {round(min_val, 4)} [\$] at t = {min_pos} [s]")
-        plt.scatter(max_pos, max_val, color='red', marker='s',
-                    label=fr"$\rho_{'{max}'}$ = {round(max_val, 4)} [\$] at t = {max_pos} [s]")
-        plt.scatter(last_pos, last_val, color='green', marker='^',
-                    label=fr"$\rho_{'{final}'}$ = {round(last_val, 4)} [\$] at t = {last_pos} [s]")
-        plt.legend()
-        # plt.xscale('log')
-        # plt.yscale('log')
-        # 2.2 save figure
-        # plt.savefig(f'prompt{no}.png')
-        plt.show()
+        pp = the_prompt_neutrons(pp0_dict, t_dict)
+        #
+        # # 2.1. plot the prompt neutrons part in the reactivity equation
+        # plt.plot(tt[1:-1], pp)
+        # plt.title(f'Prompt neutrons part - scenarij {no}')
+        # plt.tick_params(axis='both', which='major', labelsize=11)
+        # plt.xlabel('t [s]')
+        # plt.ylabel(r"$\rho [\$]$")
+        # plt.grid(which='major', axis='both')
+        # #
+        # # rho = f(t) at max, min and last rho = f(t) value
+        # max_val = max(pp)
+        # max_pos = tpp0[:, 0][pp.index(max_val)]
+        # min_val = min(pp)
+        # min_pos = tpp0[:, 0][pp.index(min_val)]
+        # last_val = pp[-1]
+        # last_pos = tpp0[:, 0][-1]
+        # plt.scatter(min_pos, min_val, color='orange',
+        #             label=fr"$\rho_{'{min}'}$ = {round(min_val, 4)} [\$] at t = {min_pos} [s]")
+        # plt.scatter(max_pos, max_val, color='red', marker='s',
+        #             label=fr"$\rho_{'{max}'}$ = {round(max_val, 4)} [\$] at t = {max_pos} [s]")
+        # plt.scatter(last_pos, last_val, color='green', marker='^',
+        #             label=fr"$\rho_{'{final}'}$ = {round(last_val, 4)} [\$] at t = {last_pos} [s]")
+        # plt.legend()
+        # # plt.xscale('log')
+        # # plt.yscale('log')
+        # # 2.2 save figure
+        # # plt.savefig(f'prompt{no}.png')
+        # plt.show()
+        # exit(0)
 
         # 3. delayed neutrons part in the equation
 
@@ -236,7 +229,53 @@ if __name__ == '__main__':
         # # save figure
         # # plt.savefig(f'D(u){no}.png')
         # plt.show()
-        #
+        # d1 = two_for(pp0_dict, t_dict)
+        # np.savetxt('rho12.txt', d1)
+        # exit(0)
+
+        # d1 = the_delayed_neutrons(tpp0[:, 0], tpp0[:, 1])
+
+        delayed2 = np.zeros(len(tpp0[:, 0]))
+        d1 = the_delayed_neutrons(tpp0[:, 0], tpp0[:, 1], delayed2)
+
+        beta = 0.007
+        r_final = []
+        for el in range(len(d1)):
+            try:
+                r_final.append(pp[el]+d1[el])
+            except IndexError:
+                r_final.append(d1[el])
+
+        end = time.perf_counter()
+        print(f'scenarij {no} reactivity calculated in {round(end-st, 4)} seconds.')
+
+        plt.plot(tpp0[:, 0][:len(r_final)], r_final, color='magenta')
+        plt.title(f'Reactivity scenarij {no}')
+        plt.tick_params(axis='both', which='major', labelsize=11)
+        plt.xlabel('time [s]')
+        plt.ylabel(r"$\rho [\$]$")
+        plt.grid(which='major', axis='both')
+
+        # rho = f(t) at max, min and last rho = f(t) value
+        max_val = max(r_final)
+        max_pos = tpp0[:, 0][r_final.index(max_val)]
+        min_val = min(r_final)
+        min_pos = tpp0[:, 0][r_final.index(min_val)]
+        last_val = r_final[-1]
+        last_pos = tpp0[:, 0][-1]
+        plt.scatter(min_pos, min_val, color='blue',
+                    label=fr"$\rho_{'{min}'}$ = {round(min_val, 4)} [\$] at t = {min_pos} [s]")
+        plt.scatter(max_pos, max_val, color='red', marker='s',
+                    label=fr"$\rho_{'{max}'}$ = {round(max_val, 4)} [\$] at t = {max_pos} [s]")
+        plt.scatter(last_pos, last_val, color='green', marker='^',
+                    label=fr"$\rho_{'{final}'}$ = {round(last_val, 4)} [\$] at t = {last_pos} [s]")
+        plt.legend()
+        # plt.xscale('log')
+        # plt.yscale('log')
+        # save figure
+        plt.savefig(f'rho{no}.png')
+        plt.show()
+
         # # 3.2 get the indexes for the power ratio in the integral
         # indexes = []
         # for i in range(len(tt)):
@@ -280,16 +319,31 @@ if __name__ == '__main__':
         # plt.savefig(f'rho{no}.png')
         # plt.show()
         #
-        # # 5. multiplication factor k = 1/(1 - rho)
-        # k = [1/(1-i*10**-5) for i in r]
-        #
-        # plt.plot(tt[1:-1], k, color='#580000')
-        # plt.tick_params(axis='both', which='major', labelsize=11)
-        # plt.subplots_adjust(left=0.17, bottom=0.17)
-        # plt.xlabel('t [s]')
-        # plt.ylabel('k')
-        # plt.grid(which='major', axis='both')
-        #
+        # 5. multiplication factor k = 1/(1 - rho)
+        k = [1/(1-i*beta) for i in r_final]
+
+        plt.plot(tt, k, color='#800020')
+        plt.tick_params(axis='both', which='major', labelsize=11)
+        plt.subplots_adjust(left=0.17, bottom=0.17)
+        plt.xlabel('t [s]')
+        plt.ylabel('k')
+        plt.grid(which='major', axis='both')
+
+        # rho = f(t) at max, min and last rho = f(t) value
+        max_val = max(k)
+        max_pos = tpp0[:, 0][k.index(max_val)]
+        min_val = min(k)
+        min_pos = tpp0[:, 0][k.index(min_val)]
+        last_val = k[-1]
+        last_pos = tpp0[:, 0][-1]
+        plt.scatter(min_pos, min_val, color='blue',
+                    label=fr"$k{'{min}'}$ = {round(min_val, 4)} [\$] at t = {min_pos} [s]")
+        plt.scatter(max_pos, max_val, color='red', marker='s',
+                    label=fr"$k{'{max}'}$ = {round(max_val, 4)} [\$] at t = {max_pos} [s]")
+        plt.scatter(last_pos, last_val, color='green', marker='^',
+                    label=fr"$k{'{final}'}$ = {round(last_val, 4)} [\$] at t = {last_pos} [s]")
+        plt.legend()
+
         # # 5.1. save figure
-        # plt.savefig(f'k{no}.png')
-        # plt.show()
+        plt.savefig(f'k{no}.png')
+        plt.show()
