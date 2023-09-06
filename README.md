@@ -1,3 +1,3 @@
 # Physics of Fission Reactors
 
-An attempt for numerically solving my Physics of Fission Reactors model analysis problems.
+Numerical solutions of my Physics of Fission Reactors model analysis problems.
